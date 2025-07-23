@@ -1,47 +1,44 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
-    <!-- CONFIGURAÇÃO BÁSICA -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Ícone do site que aparece na aba do navegador (Favicon) -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 
-    <!-- TÍTULO E DESCRIÇÃO PARA SEO (Google, Bing, etc.) -->
-    <title>BahiaExpress | Fretes e Mudanças na Bahia</title>
-    <meta name="description" content="Encontre motoristas e empresas de transporte para sua carga ou mudança de forma rápida e segura. A solução completa para suas cargas e mudanças na Bahia." />
+    <!-- Título e Descrição para SEO -->
+    <title>Mudanças Bahia | Fretes e Mudanças Rápidas e Seguras</title>
+    <meta name="description" content="Encontre motoristas e empresas para sua carga ou mudança de forma rápida e segura. A solução completa para sua mudança na Bahia." />
     
-    <!-- TAGS PARA REDES SOCIAIS (WhatsApp, Facebook, etc.) -->
-    <meta property="og:title" content="BahiaExpress | Fretes e Mudanças na Bahia" />
-    <meta property="og:description" content="A solução completa para suas cargas e mudanças na Bahia." />
-    <!-- Substitua pela URL de uma imagem de logo ou banner do seu app -->
-    <meta property="og:image" content="URL_DA_SUA_IMAGEM_DE_COMPARTILHAMENTO" />
+    <!-- URL Canônica (Endereço principal para o Google) -->
+    <!-- Substitua pela sua URL final do Render -->
+    <link rel="canonical" href="https://bahiaexpress-app-web-hzno.onrender.com" />
+
+    <!-- Tags para Redes Sociais (Open Graph para Facebook, WhatsApp, etc.) -->
+    <meta property="og:site_name" content="Mudanças Bahia" />
+    <meta property="og:title" content="Mudanças Bahia | Fretes e Mudanças Rápidas e Seguras" />
+    <meta property="og:description" content="Encontre motoristas e empresas para sua carga ou mudança de forma rápida e segura." />
+    <!-- Substitua pela URL final do Render -->
+    <meta property="og:url" content="https://bahiaexpress-app-web-hzno.onrender.com" />
+    <!-- Substitua pela URL de uma imagem de logo/banner -->
+    <meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=Mudanças+Bahia" />
     <meta property="og:type" content="website" />
+
+    <!-- Tags para Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mudanças Bahia | Fretes e Mudanças Rápidas e Seguras" />
+    <meta name="twitter:description" content="Encontre motoristas e empresas para sua carga ou mudança de forma rápida e segura." />
+    <!-- Substitua pela URL da mesma imagem de logo/banner -->
+    <meta name="twitter:image" content="https://via.placeholder.com/1200x630.png?text=Mudanças+Bahia" />
     
-    <!-- 
-      A linha de URL abaixo foi comentada conforme solicitado.
-      O navegador e os robôs de busca irão ignorar esta linha.
-      Isso é útil para desativar a URL de produção em um ambiente de desenvolvimento.
-    -->
-    <!-- <meta property="og:url" content="https://bahiaexpress.onrender.com" /> -->
-
-    <!-- MELHORIAS PARA EXPERIÊNCIA MOBILE -->
+    <!-- Ícone para adicionar à tela inicial de celulares -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <meta name="theme-color" content="#1D4ED8"> 
-
-    <!-- 
-      A URL Canônica abaixo foi comentada conforme solicitado.
-      Isso impede que os buscadores considerem esta URL como a oficial, 
-      o que é útil durante o desenvolvimento ou teste.
-    -->
-    <!-- <link rel="canonical" href="https://bahiaexpress.onrender.com" /> -->
-
   </head>
+  
   <body>
-    <!-- O React vai "desenhar" todo o seu aplicativo dentro desta div -->
+    <!-- Ponto de entrada OBRIGATÓRIO para o React -->
     <div id="root"></div>
     
-    <!-- Carrega o ponto de entrada do seu aplicativo React -->
+    <!-- Carrega o seu aplicativo React -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
