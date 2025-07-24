@@ -104,3 +104,4 @@ router.post('/:id/aceitar', verifyAuthToken, async (req, res) => {
 // ... mantendo seu código original para as demais rotas ...
 
 module.exports = router;
+// teste
