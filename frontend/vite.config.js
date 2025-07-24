@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// MUDANÇA PRINCIPAL AQUI:
-import viteCSP from 'vite-plugin-csp'; // Importa o plugin como padrão (default import)
+import viteCSP from 'vite-plugin-csp'
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
-    // E usa o plugin com o novo nome
     viteCSP({
       policies: {
         'script-src': ["'self'", "'unsafe-eval'"],
@@ -16,4 +14,7 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    outDir: 'dist'
+  }
 })
