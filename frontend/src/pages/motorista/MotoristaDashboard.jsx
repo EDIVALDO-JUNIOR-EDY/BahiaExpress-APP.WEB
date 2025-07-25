@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 // 1. Importa o hook do nosso contexto de mudanças
 import { useMudanca } from '../../contexts/MudancaContext';
 
-import AnimatedLogo from '../../components/AnimatedLogo';
+import AnimatedLogo from '../../components/shared/AnimatedLogo';
 import api from '../../services/api'; // Ainda necessário para a função 'handleFinalizar' por enquanto
 
 const MotoristaDashboard = () => {

@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useMudanca } from '../../contexts/MudancaContext';
 
 import AvaliacaoModal from '../../components/AvaliacaoModal';
-import AnimatedLogo from '../../components/AnimatedLogo';
+import AnimatedLogo from '../../components/shared/AnimatedLogo';
 
 const ClienteDashboard = () => {
     const { currentUser } = useAuth();
