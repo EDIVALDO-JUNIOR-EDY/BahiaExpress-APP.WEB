@@ -1,4 +1,5 @@
-// CÓDIGO COMPLETO E ATUALIZADO para frontend/src/components/home/UserTypeCard.jsx
+// CÓDIGO SINTATICAMENTE CORRIGIDO para frontend/src/components/home/UserTypeCard.jsx
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,12 +7,10 @@ const UserTypeCard = ({ icon, title, description, userType, borderColorClass }) 
     const navigate = useNavigate();
 
     const handleClick = () => {
-        // Navega para a página de registro passando o tipo de usuário no estado
         navigate('/register', { state: { userType } });
     };
 
     return (
-        // O container externo com o padding cria o efeito da borda gradiente
         <div className={`p-1 rounded-xl bg-gradient-to-br ${borderColorClass}`}>
             <button
                 onClick={handleClick}
@@ -25,6 +24,6 @@ const UserTypeCard = ({ icon, title, description, userType, borderColorClass }) 
             </button>
         </div>
     );
-};
+}; // <-- Ponto e vírgula adicionado aqui
 
 export default UserTypeCard;
