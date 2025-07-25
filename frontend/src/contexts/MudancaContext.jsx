@@ -1,18 +1,20 @@
-// CÓDIGO COMPLETO para frontend/src/contexts/MudancaContext.jsx
+// CÓDIGO COMPLETO E EXPANDIDO para frontend/src/contexts/MudancaContext.jsx
 
 import React, { createContext, useState, useContext } from 'react';
-import api from '../services/api'; // Importando sua instância centralizada do Axios
+import api from '../services/api';
 
-// Cria o contexto
 const MudancaContext = createContext();
 
-// Cria o Provedor, que é o componente que vai "segurar" e fornecer os dados
 export const MudancaProvider = ({ children }) => {
+    // Estado para as mudanças do usuário logado (cliente ou motorista)
     const [mudancas, setMudancas] = useState([]);
+    // NOVO: Estado separado para a lista de fretes disponíveis para motoristas
+    const [fretesDisponiveis, setFretesDisponiveis] = useState([]);
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Função para um cliente solicitar uma nova mudança
+    // Função para um cliente solicitar uma nova mudança (sem alterações)
     const solicitarNovaMudanca = async (dadosDaMudanca) => {
         setLoading(true);
         setError(null);
@@ -27,13 +29,11 @@ export const MudancaProvider = ({ children }) => {
         }
     };
 
-    // Função para buscar as mudanças de um usuário (seja cliente ou motorista)
-    // O backend saberá quem é o usuário pelo token de autenticação
+    // Função para buscar as mudanças do usuário logado (sem alterações)
     const buscarMinhasMudancas = async (userType) => {
         setLoading(true);
         setError(null);
         try {
-            // A rota no backend precisa ser ajustada para receber o tipo de usuário
             const response = await api.get(`/mudancas/minhas/${userType}`);
             setMudancas(response.data);
             return response.data;
@@ -45,15 +45,49 @@ export const MudancaProvider = ({ children }) => {
         }
     };
     
-    // Futuramente, adicionaremos mais funções aqui (buscarFretesDisponiveis, aceitarMudanca, etc.)
+    // --- NOVAS FUNÇÕES PARA O MOTORISTA ---
 
-    // O valor que será compartilhado com todos os componentes "filhos"
+    // 1. Função para buscar todos os fretes com status 'disponivel'
+    const buscarFretesDisponiveis = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const { data } = await api.get('/mudancas/disponiveis');
+            setFretesDisponiveis(data);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erro ao buscar fretes disponíveis.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 2. Função para um motorista aceitar um frete
+    const aceitarFrete = async (mudancaId) => {
+        setLoading(true);
+        setError(null);
+        try {
+            await api.post(`/mudancas/${mudancaId}/aceitar`);
+            // Remove o frete da lista local para atualizar a UI imediatamente
+            setFretesDisponiveis(prev => prev.filter(f => f.id !== mudancaId));
+            return { success: true };
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erro ao aceitar o frete.');
+            return { success: false, error: err.response?.data?.message || 'Erro desconhecido' };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // O valor compartilhado com a aplicação, agora com as novas funções e estado
     const value = {
         mudancas,
+        fretesDisponiveis, // Adicionado
         loading,
         error,
         solicitarNovaMudanca,
         buscarMinhasMudancas,
+        buscarFretesDisponiveis, // Adicionado
+        aceitarFrete,             // Adicionado
     };
 
     return (
@@ -63,7 +97,7 @@ export const MudancaProvider = ({ children }) => {
     );
 };
 
-// Hook customizado para facilitar o uso do contexto em outros componentes
+// Hook customizado (sem alterações)
 export const useMudanca = () => {
     const context = useContext(MudancaContext);
     if (context === undefined) {

@@ -1,11 +1,12 @@
-// CÓDIGO COMPLETO E ATUALIZADO para frontend/src/pages/cliente/SolicitarMudanca.jsx
+// CÓDIGO COMPLETO E REATORADO para frontend/src/pages/cliente/SolicitarMudanca.jsx
 
 import React, { useState } from 'react';
 import { FaPaw, FaMotorcycle, FaBoxOpen, FaPaperPlane } from 'react-icons/fa';
-import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api'; // Usando a instância do Axios
+// 1. Importa o hook do nosso novo contexto
+import { useMudanca } from '../../contexts/MudancaContext';
 
+// Componente auxiliar (sem alterações)
 const CheckboxServico = ({ id, label, Icon, checked, onChange }) => (
     <div className="flex items-center">
         <input
@@ -23,18 +24,18 @@ const CheckboxServico = ({ id, label, Icon, checked, onChange }) => (
 );
 
 const SolicitarMudanca = () => {
-    const { currentUser } = useAuth();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    // 2. Usa o contexto para obter a função e os estados de loading/error
+    const { solicitarNovaMudanca, loading, error } = useMudanca();
 
+    // O estado do formulário continua sendo local do componente, o que é correto.
     const [formData, setFormData] = useState({
         origem: '',
         destino: '',
-        itens: '', // Campo simples para itens por enquanto
+        itens: '',
         solicitaEmpacotamento: false,
-        transportePet: false,      // NOVO
-        transporteVeiculo: false,   // NOVO
+        transportePet: false,
+        transporteVeiculo: false,
     });
 
     const handleChange = (e) => {
@@ -45,39 +46,30 @@ const SolicitarMudanca = () => {
         }));
     };
 
+    // 3. A função handleSubmit agora é muito mais simples
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.origem || !formData.destino) {
-            setError("Por favor, preencha os endereços de origem e destino.");
-            return;
-        }
-        setLoading(true);
-        setError('');
+        
+        const dadosParaEnviar = {
+            ...formData,
+            itens: formData.itens.split(',').map(item => item.trim()),
+        };
 
-        try {
-            // A API já pega o ID do cliente pelo token, não precisamos mais enviar
-            const dadosParaEnviar = {
-                ...formData,
-                itens: formData.itens.split(',').map(item => item.trim()), // Transforma a string de itens em um array
-            };
+        // Chama a função centralizada do contexto
+        const { success } = await solicitarNovaMudanca(dadosParaEnviar);
 
-            await api.post('/mudancas/criar', dadosParaEnviar);
-            
+        if (success) {
             alert("Solicitação de mudança enviada com sucesso!");
-            navigate('/cliente/dashboard'); // Redireciona para o dashboard do cliente
-        } catch (err) {
-            setError(err.response?.data?.message || "Houve um erro ao enviar sua solicitação.");
-            console.error("Erro ao enviar solicitação:", err);
-        } finally {
-            setLoading(false);
+            navigate('/cliente/dashboard');
         }
+        // O tratamento de erro e loading já é feito pelo contexto e exibido no return
     };
 
     return (
         <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
             <h1 className="text-3xl font-bold mb-6 text-gray-800">Solicitar Minha Mudança</h1>
             <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto">
-                {/* Seção de Endereços */}
+                {/* Seção de Endereços (sem alterações) */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-2xl font-semibold mb-4 border-b pb-2">Endereços</h2>
                     <div className="mb-4">
@@ -90,7 +82,7 @@ const SolicitarMudanca = () => {
                     </div>
                 </div>
 
-                {/* Seção de Itens e Serviços */}
+                {/* Seção de Itens e Serviços (sem alterações) */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-2xl font-semibold mb-4 border-b pb-2">Detalhes da Mudança</h2>
                     <div className="mb-4">
@@ -104,10 +96,12 @@ const SolicitarMudanca = () => {
                     </div>
                 </div>
                 
+                {/* 4. Exibe o erro que vem do contexto */}
                 {error && <p className="text-red-500 text-center bg-red-100 p-3 rounded-lg">{error}</p>}
 
                 <button type="submit" disabled={loading} className="w-full bg-green-600 text-white font-bold py-4 rounded-lg text-lg flex items-center justify-center hover:bg-green-700 disabled:bg-gray-400">
                     <FaPaperPlane className="mr-3" />
+                    {/* Usa o 'loading' que vem do contexto */}
                     {loading ? 'Enviando...' : 'Enviar Solicitação'}
                 </button>
             </form>
