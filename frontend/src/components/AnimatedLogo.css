@@ -1,0 +1,57 @@
+/* Em frontend/src/components/AnimatedLogo.css */
+
+.logo-container {
+  display: inline-block; /* Alterado para se comportar melhor dentro de outros elementos */
+  position: relative;
+}
+
+.animated-truck-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible; 
+}
+
+/* --- ANIMAÇÃO DAS RODAS --- */
+.wheel {
+  transform-origin: center;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- ANIMAÇÃO DO EFEITO DE VELOCIDADE --- */
+.speed-lines line {
+  stroke: #f39c12; 
+  stroke-linecap: round;
+  transform-origin: left;
+  animation: dash 1s ease-in-out infinite;
+}
+
+.speed-lines line:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.speed-lines line:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes dash {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(30px) scaleX(1);
+    opacity: 0;
+  }
+}

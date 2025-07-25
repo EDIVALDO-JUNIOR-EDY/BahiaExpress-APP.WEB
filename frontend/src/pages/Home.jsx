@@ -1,28 +1,72 @@
+// Em frontend/src/pages/Home.jsx
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTruck, FaBuilding, FaBoxOpen } from 'react-icons/fa';
+import { FaUserTie, FaBuilding, FaHome } from 'react-icons/fa'; // Ícones mais adequados
+import AnimatedLogo from '../components/AnimatedLogo'; // Importando a logo animada
 
 const Home = () => {
     const navigate = useNavigate();
-    const CardButton = ({ onClick, icon, title, description, colorClass }) => (
-        <button onClick={onClick} className={`${colorClass} text-white p-8 rounded-lg shadow-lg flex flex-col items-center text-center hover:opacity-90 transform hover:-translate-y-1`}>
-            {icon}
-            <h2 className="text-2xl font-semibold mt-4">{title}</h2>
-            <p className="mt-2">{description}</p>
+
+    // Componente de Cartão reutilizável com o novo design
+    const ProfileCard = ({ onClick, icon, title, description }) => (
+        <button
+            onClick={onClick}
+            className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-transform duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2"
+        >
+            <div className="text-blue-600 mb-4">
+                {icon}
+            </div>
+            <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+            <p className="mt-2 text-gray-500">{description}</p>
         </button>
     );
+
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
-            <div className="text-center mb-12">
-                <h1 className="text-5xl font-bold text-gray-800">BahiaExpress</h1>
-                <p className="text-xl text-gray-600 mt-2">Sua Carga, Sua Mudança, Sua Solução.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
-                <CardButton onClick={() => navigate('/register')} icon={<FaBoxOpen size={50} />} title="Sou Cliente" description="Preciso de uma mudança segura." colorClass="bg-purple-600"/>
-                <CardButton onClick={() => navigate('/register')} icon={<FaTruck size={50} />} title="Sou Motorista" description="Busco fretes e oportunidades." colorClass="bg-blue-600"/>
-                <CardButton onClick={() => navigate('/register')} icon={<FaBuilding size={50} />} title="Sou Empresa" description="Quero gerenciar minhas cargas." colorClass="bg-green-600"/>
-            </div>
-             <p className="text-center mt-8">Já tem uma conta? <button onClick={() => navigate('/login')} className="text-blue-600 font-bold hover:underline">Faça Login</button></p>
+        <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
+            <header className="text-center mb-10">
+                {/* 1. LOGO ANIMADA AQUI, COM O DOBRO DO TAMANHO */}
+                <AnimatedLogo size="200px" />
+
+                <h1 className="text-4xl font-bold text-gray-800 mt-4">BahiaExpress</h1>
+                <p className="text-lg text-gray-600 mt-2">
+                    A solução completa para suas cargas e mudanças na Bahia.
+                </p>
+            </header>
+
+            <main className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+                {/* Cartões com os textos e ícones da imagem de referência */}
+                <ProfileCard
+                    onClick={() => navigate('/register', { state: { userType: 'motorista' } })}
+                    icon={<FaUserTie size={40} />}
+                    title="Motorista Autônomo"
+                    description="Pronto para rodar mais e lucrar mais?"
+                />
+                <ProfileCard
+                    onClick={() => navigate('/register', { state: { userType: 'empresa' } })}
+                    icon={<FaBuilding size={40} />}
+                    title="Empresa de Transporte"
+                    description="Encontre os melhores motoristas para suas cargas."
+                />
+                <ProfileCard
+                    onClick={() => navigate('/register', { state: { userType: 'cliente' } })}
+                    icon={<FaHome size={40} />}
+                    title="Vou me Mudar"
+                    description="Planeje sua mudança e encontre o transporte ideal."
+                />
+            </main>
+
+            <footer className="text-center mt-12">
+                <p className="text-gray-600">
+                    Já tem uma conta?{' '}
+                    <button onClick={() => navigate('/login')} className="text-blue-600 font-bold hover:underline">
+                        Faça Login
+                    </button>
+                </p>
+                 <p className="text-sm text-gray-400 mt-8">
+                    © 2025 BahiaExpress. Todos os direitos reservados.
+                </p>
+            </footer>
         </div>
     );
 };
