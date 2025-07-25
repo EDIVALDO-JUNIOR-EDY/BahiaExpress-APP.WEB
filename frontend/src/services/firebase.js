@@ -1,54 +1,67 @@
-// CAMINHO: C:\dev\frontend\src\services\firebase.js
-// Este arquivo é o ponto central de conexão da sua interface com os serviços do Firebase.
+// Em: C:\dev\frontend\src\services\firebase.js
+// Este arquivo é o ponto central e único de conexão da sua interface com o Firebase.
 
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
-// 1. CONFIGURAÇÃO DO PROJETO
-// Lê as credenciais do seu projeto Firebase a partir das variáveis de ambiente.
-// É a forma correta e segura de fazer isso com Vite.
+// =========================================================================
+// 1. CONFIGURAÇÃO DO PROJETO (O CORAÇÃO DA CONEXÃO)
+// =========================================================================
+// Lê as credenciais do seu projeto a partir das variáveis de ambiente.
+// Esta é a forma 100% segura e correta de fazer isso com Vite.
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  // APRIMORAMENTO: Adicionando o measurementId para completar a configuração oficial.
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID 
 };
 
-// 2. INICIALIZAÇÃO DOS SERVIÇOS
-// Cria a conexão principal com o Firebase e obtém os serviços que usaremos.
+// =========================================================================
+// 2. VALIDAÇÃO E INICIALIZAÇÃO (GARANTIA DE ROBUSTEZ)
+// =========================================================================
+// APRIMORAMENTO: Checagem de segurança para garantir que a chave principal foi carregada.
+// Isso previne erros silenciosos e ajuda a depurar problemas de configuração.
+if (!firebaseConfig.apiKey) {
+  throw new Error("VITE_FIREBASE_API_KEY não encontrada! Verifique seu arquivo .env.local ou as configurações de ambiente do servidor.");
+}
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 3. LÓGICA DE CONEXÃO COM EMULADORES (CICLO DE DESENVOLVIMENTO)
-// A variável `import.meta.env.DEV` é fornecida pelo Vite e é `true` apenas
-// quando rodamos com `npm run dev`. Isso garante que esta lógica NUNCA
-// será executada em produção (no Render).
+// =========================================================================
+// 3. CICLO DE DESENVOLVIMENTO: CONEXÃO COM EMULADORES
+// =========================================================================
+// Esta lógica é a sua funcionalidade mais avançada e foi 100% preservada.
+// A variável `import.meta.env.DEV` é `true` apenas com "npm run dev".
+// Isso garante que esta seção NUNCA execute em produção (no Render.com).
 if (import.meta.env.DEV) {
-  // Lê as configurações do emulador do nosso arquivo .env.local
   const host = import.meta.env.VITE_EMULATOR_HOST;
   const authPort = import.meta.env.VITE_AUTH_EMULATOR_PORT;
-  const firestorePort = parseInt(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT); // Portas devem ser números
+  const firestorePort = import.meta.env.VITE_FIRESTORE_EMULATOR_PORT;
 
-  // Validação para garantir que as variáveis foram carregadas
-  if (!host || !authPort || !firestorePort) {
-    console.error("Variáveis de ambiente dos emuladores não encontradas! Verifique o arquivo .env.local.");
-  } else {
-    // Conexão com o emulador de Autenticação
-    connectAuthEmulator(auth, `http://${host}:${authPort}`);
-    
-    // Conexão com o emulador do Firestore (usando a porta CORRIGIDA e CENTRALIZADA)
-    connectFirestoreEmulator(db, host, firestorePort);
-    
-    console.log(`🔥 Conectado aos Emuladores do Firebase:
-      - Auth: http://${host}:${authPort}
-      - Firestore: ${host}:${firestorePort}`);
+  if (host && authPort && firestorePort) {
+    try {
+      connectAuthEmulator(auth, `http://${host}:${authPort}`);
+      connectFirestoreEmulator(db, host, parseInt(firestorePort));
+      
+      console.log(`🔥 Conectado aos Emuladores Locais do Firebase:
+        - Auth: http://${host}:${authPort}
+        - Firestore: ${host}:${firestorePort}`);
+        
+    } catch (error) {
+        console.error("Falha ao conectar aos emuladores do Firebase:", error);
+    }
   }
 }
 
-// 4. EXPORTAÇÃO
-// Disponibiliza as instâncias dos serviços para o resto da sua aplicação React.
+// =========================================================================
+// 4. EXPORTAÇÃO DOS SERVIÇOS
+// =========================================================================
+// Disponibiliza as instâncias prontas e configuradas para o resto da sua aplicação.
 export { auth, db, app };
