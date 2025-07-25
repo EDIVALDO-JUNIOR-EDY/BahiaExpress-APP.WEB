@@ -1,45 +1,60 @@
-// Em frontend/src/components/AnimatedLogo.jsx
+// Em: frontend/src/components/AnimatedLogo.jsx
 
 import React from 'react';
 import './AnimatedLogo.css';
 
-// Adicionamos a propriedade 'size' para controlar as dimensões
-const AnimatedLogo = ({ size = '150px' }) => {
+/**
+ * Componente de Logo Animada para o BahiaExpress.
+ * - Totalmente acessível com tags <title> e <desc>.
+ * - Animação pode ser pausada via prop.
+ * - Altamente personalizável com props 'size' e 'className'.
+ */
+const AnimatedLogo = ({ size = '150px', className = '', paused = false }) => {
+  // Combina classes CSS de forma segura
+  const containerClasses = ['logo-container', className, paused ? 'paused' : ''].join(' ').trim();
+
   return (
-    // O estilo agora é controlado pela propriedade 'size'
-    <div className="logo-container" style={{ width: size, height: 'auto' }}>
+    <div className={containerClasses} style={{ width: size }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 400 200"
+        viewBox="0 0 350 200"
         className="animated-truck-svg"
+        role="img" // Acessibilidade: define o SVG como uma imagem
+        aria-labelledby="logoTitle logoDesc" // Acessibilidade: linka com o título e descrição
       >
-        {/* Efeito de Velocidade */}
-        <g id="speed-lines" className="speed-lines">
-          <line x1="50" y1="90" x2="110" y2="90" strokeWidth="10" />
-          <line x1="40" y1="105" x2="120" y2="105" strokeWidth="10" />
-          <line x1="50" y1="120" x2="110" y2="120" strokeWidth="10" />
+        {/* Acessibilidade: Título e Descrição para leitores de tela */}
+        <title id="logoTitle">Logo Animada BahiaExpress</title>
+        <desc id="logoDesc">Animação de um caminhão laranja em movimento com linhas de velocidade.</desc>
+        
+        {/* --- EFEITO DE VELOCIDADE --- */}
+        <g className="speed-lines-group" fill="none" stroke="#f39c12" strokeWidth="8" strokeLinecap="round">
+          <path d="M 10 90 H 80" />
+          <path d="M 20 105 H 100" />
+          <path d="M 10 120 H 80" />
         </g>
-
-        {/* Caminhão */}
+        
+        {/* --- CAMINHÃO --- */}
         <g id="truck">
-          {/* Chassi e Estrada */}
-          <line x1="100" y1="140" x2="320" y2="140" stroke="#f39c12" strokeWidth="4" />
-          
-          {/* Corpo do Caminhão */}
-          <path d="M150,80 h100 v50 h-100 z" fill="#f39c12" />
-          
-          {/* Cabine */}
-          <path d="M250,80 h40 l15,25 v25 h-55 z" fill="#f39c12" />
-          <path d="M260,105 h30 v25 h-30 z" fill="#3498db" stroke="#2980b9" strokeWidth="2" />
+          {/* Estrutura redesenhada para maior fidelidade e preenchimento sólido */}
+          <path 
+            d="M130 70 H 230 V 130 H 130 V 70 M230 80 H 270 L 290 105 V 130 H 230 V 80"
+            fill="#f39c12"
+            stroke="#002244"
+            strokeWidth="1.5"
+          />
+          {/* Vidro da cabine */}
+          <rect x="235" y="85" width="38" height="20" fill="#3498db" />
 
-          {/* Rodas - Adicionamos classes para animá-las */}
-          <g className="wheel">
-            <circle cx="180" cy="140" r="15" fill="#333" />
-            <circle cx="180" cy="140" r="7" fill="#ddd" />
+          {/* Roda Traseira */}
+          <g className="wheel" transform="translate(165, 140)">
+            <circle r="20" fill="#2c3e50" stroke="#1c2833" strokeWidth="2" />
+            <circle r="9" fill="#bdc3c7" />
           </g>
-          <g className="wheel">
-            <circle cx="280" cy="140" r="15" fill="#333" />
-            <circle cx="280" cy="140" r="7" fill="#ddd" />
+          
+          {/* Roda Dianteira */}
+          <g className="wheel" transform="translate(275, 140)">
+            <circle r="20" fill="#2c3e50" stroke="#1c2833" strokeWidth="2" />
+            <circle r="9" fill="#bdc3c7" />
           </g>
         </g>
       </svg>

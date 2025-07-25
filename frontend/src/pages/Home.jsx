@@ -1,58 +1,69 @@
-// Em frontend/src/pages/Home.jsx
+// Em: frontend/src/pages/Home.jsx
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUserTie, FaBuilding, FaHome } from 'react-icons/fa'; // Ícones mais adequados
-import AnimatedLogo from '../components/AnimatedLogo'; // Importando a logo animada
+import { FaBuilding, FaHouseUser } from 'react-icons/fa';
+import { FaTruckFast } from "react-icons/fa6"; // Ícone de caminhão em movimento
+import AnimatedLogo from '../components/AnimatedLogo';
 
 const Home = () => {
     const navigate = useNavigate();
 
-    // Componente de Cartão reutilizável com o novo design
-    const ProfileCard = ({ onClick, icon, title, description }) => (
-        <button
-            onClick={onClick}
-            className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-transform duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2"
-        >
-            <div className="text-blue-600 mb-4">
-                {icon}
-            </div>
-            <h2 className="text-xl font-bold text-gray-800">{title}</h2>
-            <p className="mt-2 text-gray-500">{description}</p>
-        </button>
+    // Componente de Card totalmente redesenhado
+    const ProfileCard = ({ icon, title, description, onClick, borderColor }) => (
+        // O container do card que cria o efeito da borda gradiente
+        <div className={`p-1 rounded-xl bg-gradient-to-br ${borderColor}`}>
+            <button
+                onClick={onClick}
+                className="w-full h-full bg-white p-6 rounded-lg flex flex-col items-center group"
+            >
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">{title}</h2>
+                <div className="text-blue-800 transition-transform duration-300 group-hover:scale-110">
+                    {icon}
+                </div>
+                <p className="mt-4 text-gray-500 font-medium">{description}</p>
+            </button>
+        </div>
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
+        <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
             <header className="text-center mb-10">
-                {/* 1. LOGO ANIMADA AQUI, COM O DOBRO DO TAMANHO */}
-                <AnimatedLogo size="200px" />
+                {/* 3. LOGO CENTRALIZADA E MAIOR */}
+                <AnimatedLogo size="250px" />
 
-                <h1 className="text-4xl font-bold text-gray-800 mt-4">BahiaExpress</h1>
+                <h1 className="text-5xl font-extrabold text-gray-800 mt-2" style={{ color: '#002244' }}>
+                    BahiaExpress
+                </h1>
                 <p className="text-lg text-gray-600 mt-2">
                     A solução completa para suas cargas e mudanças na Bahia.
                 </p>
             </header>
 
             <main className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-                {/* Cartões com os textos e ícones da imagem de referência */}
+                {/* 4. SEQUÊNCIA E CONTEÚDO CORRIGIDOS */}
+                <ProfileCard
+                    onClick={() => navigate('/register', { state: { userType: 'cliente' } })}
+                    title="Sou Cliente"
+                    description="Quero fazer minha mudança"
+                    icon={<FaHouseUser size={50} />}
+                    borderColor="from-orange-400 via-white to-blue-500"
+                />
                 <ProfileCard
                     onClick={() => navigate('/register', { state: { userType: 'motorista' } })}
-                    icon={<FaUserTie size={40} />}
-                    title="Motorista Autônomo"
-                    description="Pronto para rodar mais e lucrar mais?"
+                    title="Sou Motorista"
+                    description="Pronto para rodar e lucrar mais"
+                    // Ícone com animação de "chacoalhar" no hover
+                    icon={<FaTruckFast size={50} className="transition-transform group-hover:-translate-x-1" />}
+                    borderColor="from-orange-400 via-white to-blue-500"
                 />
                 <ProfileCard
                     onClick={() => navigate('/register', { state: { userType: 'empresa' } })}
-                    icon={<FaBuilding size={40} />}
-                    title="Empresa de Transporte"
-                    description="Encontre os melhores motoristas para suas cargas."
-                />
-                <ProfileCard
-                    onClick={() => navigate('/register', { state: { userType: 'cliente' } })}
-                    icon={<FaHome size={40} />}
-                    title="Vou me Mudar"
-                    description="Planeje sua mudança e encontre o transporte ideal."
+                    title="Sou Empresa"
+                    description="Encontre os melhores motoristas"
+                    // Ícone com animação de "pulso" no hover
+                    icon={<FaBuilding size={50} className="transition-transform group-hover:animate-pulse" />}
+                    borderColor="from-orange-400 via-white to-blue-500"
                 />
             </main>
 
