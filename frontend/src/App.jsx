@@ -1,3 +1,5 @@
+// CÓDIGO COMPLETO E ATUALIZADO para C:\dev\frontend\src\App.jsx
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -9,13 +11,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword'; // <-- NOVA IMPORTAÇÃO
 import Contrato from './pages/Contrato';
 import PerfilMotorista from './pages/PerfilMotorista';
 import ClienteDashboard from './pages/cliente/ClienteDashboard';
 import SolicitarMudanca from './pages/cliente/SolicitarMudanca';
 import MotoristaDashboard from './pages/motorista/MotoristaDashboard';
 import BuscarFretes from './pages/motorista/BuscarFretes';
-import Chat from './pages/Chat'; // <-- NOVA IMPORTAÇÃO para a página de CHAT
+import Chat from './pages/Chat';
 
 function App() {
   return (
@@ -33,6 +36,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} /> {/* <-- NOVA ROTA */}
             
             {/* ================================================================= */}
             {/* ==== Rotas Protegidas (só acessa se estiver logado) ==== */}
