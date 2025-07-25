@@ -1,12 +1,12 @@
-/* CÓDIGO COMPLETO E APRIMORADO para C:\dev\frontend\src\index.css */
+/* src/index.css - BahiaExpress - Atualizado em 25/07/2025 */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  Com a configuração correta do Tailwind, não precisamos de regras
-  adicionais aqui. A cor de fundo pode ser aplicada no componente
-  principal App.jsx ou diretamente no body no index.html para um
-  efeito global.
-*/
+/* Estilos globais adicionais podem ser definidos aqui se necessário */
+/* Exemplo: ajustes de fonte ou cor de fundo padrão */
+
+body {
+  @apply bg-gray-50 text-gray-900 font-sans;
+}

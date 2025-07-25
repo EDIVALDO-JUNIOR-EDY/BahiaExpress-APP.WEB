@@ -9,7 +9,11 @@ import { MudancaProvider } from './contexts/MudancaContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 // A importação do nosso spinner padronizado
-import LoadingSpinner from './components/shared/LoadingSpinner'; 
+import LoadingSpinner from './components/shared/LoadingSpinner';
+
+// Componente de teste do Tailwind
+import TailwindTest from './components/shared/TailwindTest';
+
 
 // --- Páginas Carregadas sob Demanda (Code Splitting com React.lazy) ---
 const Home = React.lazy(() => import('./pages/Home'));
