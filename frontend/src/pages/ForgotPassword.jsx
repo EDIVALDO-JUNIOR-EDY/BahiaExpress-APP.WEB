@@ -1,8 +1,5 @@
-// CÓDIGO COMPLETO para frontend/src/pages/ForgotPassword.jsx
-
 import React, { useState } from 'react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../services/firebase';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const ForgotPassword = () => {
@@ -18,13 +15,11 @@ const ForgotPassword = () => {
         setError('');
         setMessage('');
         try {
-            await sendPasswordResetEmail(auth, email);
-            setMessage('Verifique seu e-mail para o link de redefinição de senha.');
+            const response = await api.post('/auth/forgot-password', { email });
+            setMessage(response.data.message);
         } catch (err) {
-            setError('Falha ao enviar e-mail. Verifique se o endereço está correto.');
-            console.error("Erro na recuperação de senha:", err);
-        } finally {
-            setLoading(false);
+            setError(err.response?.data?.message || 'Erro ao enviar e-mail.');
+       (false);
         }
     };
 
