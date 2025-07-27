@@ -19,7 +19,8 @@ const ForgotPassword = () => {
             setMessage(response.data.message);
         } catch (err) {
             setError(err.response?.data?.message || 'Erro ao enviar e-mail.');
-       (false);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -41,12 +42,18 @@ const ForgotPassword = () => {
                     </div>
                     {message && <p className="text-green-500 text-center mb-4">{message}</p>}
                     {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-                    <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+                    >
                         {loading ? 'Enviando...' : 'Enviar Link de Recuperação'}
                     </button>
                 </form>
                 <p className="text-center mt-4">
-                    <button onClick={() => navigate('/login')} className="text-blue-600 hover:underline">Voltar para o Login</button>
+                    <button onClick={() => navigate('/login')} className="text-blue-600 hover:underline">
+                        Voltar para o Login
+                    </button>
                 </p>
             </div>
         </div>
