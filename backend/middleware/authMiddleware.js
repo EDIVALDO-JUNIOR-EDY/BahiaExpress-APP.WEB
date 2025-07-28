@@ -1,21 +1,44 @@
-// CÓDIGO PARA backend/middleware/authMiddleware.js
-
 const { auth } = require('../firebaseConfig');
 
-const verifyAuthToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split('Bearer ')[1];
+/**
+ * Middleware para proteger rotas, implementando Autenticação e Autorização.
+ * 1. Autenticação: Verifica se o token JWT/Firebase é válido.
+ * 2. Autorização: Verifica se o usuário autenticado possui a 'role' necessária.
+ */
+const protect = async (req, res, next) => {
+  let token;
 
-  if (!token) {
-    return res.status(401).send({ error: 'Nenhum token fornecido. Acesso não autorizado.' });
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split('Bearer ')[1];
+
+      if (!token) {
+        return res.status(401).json({ message: 'Token ausente. Acesso não autorizado.' });
+      }
+
+      // --- ETAPA DE AUTENTICAÇÃO ---
+      const decodedToken = await auth.verifyIdToken(token);
+      req.user = decodedToken;
+      
+      // --- ETAPA DE AUTORIZAÇÃO (A LÓGICA QUE FALTAVA) ---
+      // Verificamos se o usuário tem uma das roles permitidas.
+      const authorizedRoles = ['user', 'admin']; // Defina aqui as roles que têm acesso
+      if (!decodedToken.role || !authorizedRoles.includes(decodedToken.role)) {
+        // Se o usuário não tem role ou a role dele não está na lista, bloqueamos o acesso.
+        return res.status(403).json({ message: 'Permissão negada. Role não autorizada.' });
+      }
+      
+      // Se passou pela autenticação e autorização, continue.
+      next();
+    
+    } catch (error) {
+      return res.status(401).json({ message: 'Token inválido ou expirado. Autenticação falhou.' });
+    }
   }
 
-  try {
-    const decodedToken = await auth.verifyIdToken(token);
-    req.user = decodedToken; // Adiciona os dados do usuário à requisição
-    next(); // Permite que a requisição continue para a rota
-  } catch (error) {
-    return res.status(403).send({ error: 'Token inválido ou expirado.' });
+  if (!token) {
+    return res.status(401).json({ message: 'Token não fornecido. Acesso não autorizado.' });
   }
 };
 
-module.exports = { verifyAuthToken };
+module.exports = { protect };
