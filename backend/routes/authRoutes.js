@@ -1,38 +1,35 @@
-// controllers/authController.js
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
 
-module.exports = {
-  register: (req, res) => {
-    // lógica de registro
-    res.send('Usuário registrado com sucesso');
-  },
+// Registro de usuário
+router.post('/register', authController.register);
 
-  forgotPassword: (req, res) => {
-    // lógica de envio de e-mail para recuperação
-    res.send('E-mail de recuperação enviado');
-  },
+// Recuperação de senha
+router.post('/forgot-password', authController.forgotPassword);
 
-  resetPassword: (req, res) => {
-    // lógica de redefinição de senha
-    res.send('Senha redefinida com sucesso');
-  },
+// Redefinição de senha
+router.post('/reset-password', authController.resetPassword);
 
-  login: (req, res) => {
-    // lógica de login
-    res.send('Login realizado com sucesso');
-  },
+// Login
+router.post('/login', authController.login);
 
-  logout: (req, res) => {
-    // lógica de logout
-    res.send('Logout realizado com sucesso');
-  },
+// Logout
+router.post('/logout', authController.logout);
 
-  validateToken: (req, res) => {
-    // lógica de validação de token
-    res.send('Token válido');
-  },
+// Validação de token
+router.post('/validate-token', authController.validateToken);
 
-  googleLogin: (req, res) => {
-    // lógica de login com Google OAuth2
-    res.send('Login com Google realizado');
-  }
-};
+// Login com Google OAuth2
+router.post('/google-login', authController.googleLogin);
+
+// Buscar perfil (GET para receber uid via params)
+router.get('/profile/:uid', authController.getProfile);
+
+// Atualizar perfil
+router.put('/profile', authController.updateProfile);
+
+// Excluir usuário
+router.delete('/profile', authController.deleteUser);
+
+module.exports = router;
