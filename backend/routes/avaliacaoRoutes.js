@@ -1,40 +1,21 @@
-// CÓDIGO NOVO PARA: backend/routes/avaliacaoRoutes.js
+// backend/routes/avaliacaoRoutes.js
 
 const express = require('express');
-const { db } = require('../firebaseConfig');
 const router = express.Router();
 
-// ROTA NOVA: Para o cliente criar uma nova avaliação
-router.post('/criar', async (req, res) => {
-    try {
-        const { mudancaId, motoristaId, clienteId, estrelas, comentario } = req.body;
+// Importa o middleware de proteção e o novo controller
+const { protect } = require('../middleware/authMiddleware');
+const avaliacaoController = require('../controllers/avaliacaoController');
 
-        // Validação dos dados recebidos
-        if (!mudancaId || !motoristaId || !clienteId || !estrelas) {
-            return res.status(400).send({ message: 'Dados insuficientes para criar a avaliação.' });
-        }
+// --- ROTAS DE AVALIAÇÃO ---
 
-        // Cria o novo documento de avaliação
-        await db.collection('avaliacoes').add({
-            mudancaId,
-            motoristaId,
-            clienteId,
-            estrelas: Number(estrelas), // Garante que seja um número
-            comentario,
-            createdAt: new Date()
-        });
+// Rota para um cliente criar uma avaliação.
+// É protegida para garantir que apenas usuários logados possam avaliar.
+// O nome da rota foi simplificado de '/criar' para '/', seguindo o padrão REST.
+router.post('/', protect, avaliacaoController.createAvaliacao);
 
-        // Marca a mudança como "avaliada" para que não possa ser avaliada novamente
-        await db.collection('mudancas').doc(mudancaId).update({
-            avaliada: true
-        });
-
-        res.status(201).send({ message: 'Avaliação enviada com sucesso!' });
-
-    } catch (error) {
-        console.error("Erro ao criar avaliação:", error);
-        res.status(500).send({ message: 'Erro no servidor ao salvar avaliação.', error: error.message });
-    }
-});
+// Rota para buscar as avaliações de um motorista específico.
+// Esta rota é pública e pode ser acessada por qualquer um para ver a reputação de um motorista.
+router.get('/:motoristaId', avaliacaoController.getAvaliacoesPorMotorista);
 
 module.exports = router;

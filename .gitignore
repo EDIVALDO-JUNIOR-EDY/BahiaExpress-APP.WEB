@@ -1,27 +1,52 @@
-# Dependências (Nunca devem ser enviadas)
-**/node_modules/
+# ===================================================================
+# Arquivo .gitignore Otimizado para o Projeto BahiaExpress
+# PROTOCOLO-DEV.SENIOR
+# ===================================================================
 
-# Arquivos de Build
-/frontend/dist/
+# 1. SEGREDOS E ARQUIVOS DE AMBIENTE (NUNCA ENVIAR!)
+# ===================================================================
+# Ignora todos os arquivos .env em qualquer pasta.
+.env
+.env.*
+!.env.example # Permite o versionamento de um arquivo de exemplo.
 
-# Arquivos de Ambiente e Segredos (MUITO IMPORTANTE)
-**/.env
-**/.env.*
+# Ignora a chave de serviço do Firebase no backend.
 /backend/serviceAccountKey.json
 
-# Logs de Debug
-/backend/firebase-debug.log
-/backend/firestore-debug.log
+# 2. DEPENDÊNCIAS (Instaladas automaticamente com 'npm install')
+# ===================================================================
+# Ignora as pastas de dependências do frontend e do backend.
+/frontend/node_modules
+/backend/node_modules
+
+# 3. ARQUIVOS DE BUILD E CACHE (Gerados automaticamente)
+# ===================================================================
+# Ignora a pasta de build do frontend (Vite).
+/frontend/dist
+
+# Ignora o cache do Vite.
+/frontend/.vite/
+
+# 4. LOGS DE DEBUG
+# ===================================================================
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/backend/firebase-debug.log*
+/backend/firestore-debug.log*
 
-# Instaladores e Ferramentas
-*.jar
-*.exe
-jdk-24_windows-x64_bin.exe
-
-# Arquivos de Sistema e Editor
+# 5. ARQUIVOS DE SISTEMA OPERACIONAL
+# ===================================================================
 .DS_Store
 Thumbs.db
+
+# 6. ARQUIVOS DE CONFIGURAÇÃO DE EDITOR
+# ===================================================================
 .vscode/
+# Adicione outras pastas de editor aqui, se necessário (ex: .idea/ para JetBrains)
+
+# 7. EXECUTÁVEIS E INSTALADORES (Não pertencem ao código-fonte)
+# ===================================================================
+*.exe
+*.jar
+*.msi
