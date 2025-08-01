@@ -19,7 +19,7 @@ const sendEmail = async (to, subject, text, html) => {
     }
 
     try {
-        console.log(`[EmailService] Tentando enviar e-mail para o destinatário: ${to}`);
+        console.log(`[EmailService] Tentando enviar e-mail para: ${to}`);
         
         const info = await transporter.sendMail({
             from: process.env.EMAIL_FROM,
@@ -29,8 +29,6 @@ const sendEmail = async (to, subject, text, html) => {
             html: html,
         });
 
-        // ESTE LOG É A NOSSA PROVA FINAL
-        console.log(`[EmailService] Resposta do Servidor SMTP:`, info);
         console.log(`[EmailService] E-mail enviado com sucesso! Message ID: ${info.messageId}`);
         return true;
 

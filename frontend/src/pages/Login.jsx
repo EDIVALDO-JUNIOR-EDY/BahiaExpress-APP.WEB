@@ -1,13 +1,13 @@
-// CÓDIGO COMPLETO E ATUALIZADO para frontend/src/pages/Login.jsx
+// C:/dev/frontend/src/pages/Login.jsx
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// NOVAS IMPORTAÇÕES
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth, db } from '../services/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import api from '../services/api';
+import { auth } from '../services/firebase';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useAuth } from '../contexts/AuthContext';
 
-// Ícone do Google
+// --- COMPONENTE DO ÍCONE DO GOOGLE (AGORA COMPLETO) ---
 const GoogleIcon = () => (
     <svg className="w-5 h-5 mr-3" viewBox="0 0 48 48">
         <path fill="#4285F4" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
@@ -17,33 +17,24 @@ const GoogleIcon = () => (
     </svg>
 );
 
+// --- COMPONENTE PRINCIPAL DE LOGIN ---
 const Login = () => {
     const navigate = useNavigate();
+    const { setCurrentUser } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Função de redirecionamento após login bem-sucedido
-    const handleSuccessfulLogin = async (user) => {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            if (userData.userType === 'cliente') navigate('/cliente/dashboard');
-            else if (userData.userType === 'motorista' || userData.userType === 'empresa') navigate('/motorista/dashboard');
-            else navigate('/');
+    const handleSuccessfulLogin = (userData, token) => {
+        localStorage.setItem('authToken', token);
+        setCurrentUser(userData);
+        if (userData.userType === 'cliente') {
+            navigate('/cliente/dashboard');
+        } else if (userData.userType === 'motorista' || userData.userType === 'empresa') {
+            navigate('/motorista/dashboard');
         } else {
-            // Se o usuário logou com Google e não tem registro no Firestore, criamos um
-            await setDoc(userDocRef, {
-                uid: user.uid,
-                email: user.email,
-                nome: user.displayName,
-                userType: 'cliente', // Padrão para novos logins sociais
-                createdAt: new Date(),
-            });
-            navigate('/cliente/dashboard'); // Redireciona como cliente
+            navigate('/');
         }
     };
 
@@ -52,38 +43,38 @@ const Login = () => {
         setLoading(true);
         setError('');
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            await handleSuccessfulLogin(userCredential.user);
+            const response = await api.post('/auth/login', { email, password });
+            const { user, idToken } = response.data;
+            handleSuccessfulLogin(user, idToken);
         } catch (err) {
-            setError('Email ou senha inválidos. Verifique e tente novamente.');
-            console.error("Erro de login com email:", err);
+            setError(err.response?.data?.message || 'Falha no login. Verifique suas credenciais.');
         } finally {
             setLoading(false);
         }
     };
-
+    
     const handleGoogleLogin = async () => {
         setLoading(true);
         setError('');
         const provider = new GoogleAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
-            await handleSuccessfulLogin(result.user);
+            const idToken = await result.user.getIdToken();
+            const response = await api.post('/auth/google-login', { idToken });
+            const { user } = response.data;
+            handleSuccessfulLogin(user, idToken);
         } catch (err) {
-            setError('Falha ao fazer login com o Google.');
-            console.error("Erro de login com Google:", err);
+            setError(err.response?.data?.message || 'Falha ao fazer login com o Google.');
         } finally {
             setLoading(false);
         }
     };
-
+    
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Bem-vindo de volta!</h2>
                 <p className="text-center text-gray-500 mb-6">Acesse sua conta</p>
-                
-                {/* Botão de Login com Google */}
                 <button onClick={handleGoogleLogin} disabled={loading} className="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 p-3 rounded-lg font-semibold hover:bg-gray-50 mb-4">
                     <GoogleIcon />
                     Entrar com o Google
@@ -93,8 +84,6 @@ const Login = () => {
                     <span className="px-4 text-gray-500">OU</span>
                     <hr className="flex-grow border-t border-gray-300"/>
                 </div>
-
-                {/* Formulário de Email e Senha */}
                 <form onSubmit={handleEmailLogin}>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2" htmlFor="email">Email</label>
@@ -103,14 +92,11 @@ const Login = () => {
                     <div className="mb-4">
                         <div className="flex justify-between items-center">
                             <label className="block text-gray-700 mb-2" htmlFor="password">Senha</label>
-                            {/* Link para Esqueci minha senha */}
                             <button type="button" onClick={() => navigate('/forgot-password')} className="text-sm text-blue-600 hover:underline">Esqueceu a senha?</button>
                         </div>
                         <input className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                     </div>
-
                     {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-                    
                     <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400">
                         {loading ? 'Entrando...' : 'Entrar'}
                     </button>

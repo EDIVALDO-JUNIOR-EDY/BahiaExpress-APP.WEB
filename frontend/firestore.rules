@@ -1,38 +1,18 @@
-// CÓDIGO COMPLETO E SEGURO para frontend/firestore.rules
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Coleção de Usuários (users)
     match /users/{userId} {
-      // Qualquer um pode ler o perfil de um usuário (para ver o perfil do motorista, por exemplo)
       allow read: if true; 
-      
-      // Apenas o próprio usuário logado pode criar ou atualizar seu próprio perfil
       allow create, update: if request.auth.uid == userId;
     }
     
-    // Coleção de Mudanças (mudancas)
     match /mudancas/{mudancaId} {
-      // Apenas o cliente ou o motorista envolvido na mudança podem ler seus detalhes
       allow read: if request.auth.uid == resource.data.clienteId || request.auth.uid == resource.data.motoristaId;
-
-      // Um cliente só pode criar uma mudança para si mesmo
       allow create: if request.auth.uid == request.resource.data.clienteId;
-      
-      // Apenas o motorista pode aceitar/atualizar uma mudança, e o cliente pode confirmar
-      allow update: if (request.auth.uid == resource.data.motoristaId && request.resource.data.motoristaId == null) // Aceitar
-                      || (request.auth.uid == resource.data.motoristaId) // Motorista atualiza status
-                      || (request.auth.uid == resource.data.clienteId); // Cliente confirma/avalia
+      allow update: if request.auth.uid == resource.data.motoristaId || request.auth.uid == resource.data.clienteId;
     }
-    
-    // Coleção de Notificações
-    match /notificacoes/{notificacaoId} {
-      // Um usuário só pode ler, criar ou atualizar suas próprias notificações
-      allow read, create, update: if request.auth.uid == resource.data.userId;
-    }
-    
-    // Adicione regras para outras coleções (chat, avaliacoes) seguindo a mesma lógica
+
+    // Adicione outras coleções aqui
   }
 }
