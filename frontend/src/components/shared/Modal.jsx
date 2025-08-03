@@ -1,11 +1,10 @@
 // C:/dev/frontend/src/components/shared/Modal.jsx
-
 import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
-
+  
   return (
     // Overlay de fundo
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -18,7 +17,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             <FaTimes size={24} />
           </button>
         </header>
-
+        
         {/* Conteúdo Principal (onde o formulário específico entrará) */}
         <main className="p-6 overflow-y-auto">
           {children}

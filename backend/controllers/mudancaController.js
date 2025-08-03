@@ -1,5 +1,4 @@
 // backend/controllers/mudancaController.js
-
 const { db } = require('../firebaseConfig');
 
 /**
@@ -11,31 +10,35 @@ exports.createMudanca = async (req, res) => {
     const { 
         origem, 
         destino, 
-        itens, 
-        solicitaEmpacotamento, 
-        transportePet,
-        transporteVeiculo 
+        comodos, // Alterado de 'itens' para 'comodos'
+        servicosAdicionais // Adicionado para capturar os serviços
     } = req.body;
     
     // Dados do usuário vêm do middleware 'protect', que já validou o token.
     const clienteId = req.user.uid;
     const clienteNome = req.user.name || 'Nome não informado';
-
+    
+    // Mapeamento dos serviços adicionais para compatibilidade
+    const solicitaEmpacotamento = servicosAdicionais?.empacotamento || false;
+    const transportePet = !!servicosAdicionais?.pet;
+    const transporteVeiculo = !!servicosAdicionais?.veiculo;
+    
     const novaMudanca = {
       clienteId,
       clienteNome,
       origem,
       destino,
-      itens: itens || [],
-      solicitaEmpacotamento: !!solicitaEmpacotamento,
-      transportePet: !!transportePet,
-      transporteVeiculo: !!transporteVeiculo,
+      comodos, // Mantendo a estrutura completa de comodos e itens
+      servicosAdicionais, // Salvando os serviços adicionais completos
+      solicitaEmpacotamento, // Campo compatível para queries
+      transportePet, // Campo compatível para queries
+      transporteVeiculo, // Campo compatível para queries
       status: 'disponivel',
       createdAt: new Date(),
       motoristaId: null,
       motoristaNome: null,
     };
-
+    
     const docRef = await db.collection('mudancas').add(novaMudanca);
     res.status(201).send({ message: 'Solicitação de mudança criada com sucesso!', id: docRef.id });
   } catch (error) {
@@ -69,11 +72,9 @@ exports.acceptMudanca = async (req, res) => {
     const { id } = req.params; // ID da mudança vem da URL
     const motoristaId = req.user.uid; // ID do motorista vem do token
     const motoristaNome = req.user.name || 'Nome não informado';
-
     try {
         const mudancaRef = db.collection('mudancas').doc(id);
         const doc = await mudancaRef.get();
-
         if (!doc.exists) {
             return res.status(404).send({ message: 'Mudança não encontrada.' });
         }
@@ -86,7 +87,7 @@ exports.acceptMudanca = async (req, res) => {
             motoristaNome,
             status: 'aceita'
         });
-
+        
         const clienteId = doc.data().clienteId;
         await db.collection('notificacoes').add({
             userId: clienteId,
@@ -95,12 +96,10 @@ exports.acceptMudanca = async (req, res) => {
             lida: false,
             timestamp: new Date()
         });
-
+        
         res.status(200).send({ message: 'Frete aceito com sucesso!' });
     } catch (error) {
         console.error("Erro ao aceitar frete:", error);
         res.status(500).send({ message: 'Erro no servidor ao aceitar frete', error: error.message });
     }
 };
-
-// Adicione aqui outras funções de controller para mudanças conforme necessário...
