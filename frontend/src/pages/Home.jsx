@@ -1,19 +1,50 @@
-// CÓDIGO COMPLETO E DEFINITIVO para frontend/src/pages/Home.jsx
+// C:/dev/frontend/src/pages/Home.jsx
 
-import React from 'react';
+import React, { useEffect } from 'react'; // 1. Importar useEffect
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'; // 2. Importar o hook de autenticação
 
-// Importando os componentes que acabamos de aprimorar
+// Importando componentes e ícones (preservados)
 import Header from '../components/home/Header';
 import UserTypeCard from '../components/home/UserTypeCard';
-
-// Importando os ícones
 import { FaHouseUser, FaBuilding } from 'react-icons/fa';
 import { FaTruckFast } from "react-icons/fa6";
+import LoadingSpinner from '../components/shared/LoadingSpinner'; // Para uma melhor UX
 
 const Home = () => {
     const navigate = useNavigate();
+    const { currentUser, loading } = useAuth(); // 3. Usar o contexto para pegar o usuário e o estado de loading
 
+    // 4. EFEITO DE REDIRECIONAMENTO AUTOMÁTICO
+    useEffect(() => {
+        // Apenas executa a lógica se o carregamento inicial do auth já terminou
+        if (!loading && currentUser) {
+            console.log(`[Home Page] Usuário logado (${currentUser.userType}) detectado. Redirecionando...`);
+            if (currentUser.userType === 'cliente') {
+                navigate('/cliente/dashboard');
+            } else if (currentUser.userType === 'motorista' || currentUser.userType === 'empresa') {
+                navigate('/motorista/dashboard');
+            }
+        }
+    }, [currentUser, loading, navigate]); // Roda quando qualquer uma dessas variáveis mudar
+
+    // 5. RENDERIZAÇÃO CONDICIONAL
+    // Enquanto o AuthContext verifica o estado do usuário, mostramos um spinner
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
+    // Se o usuário estiver logado, o useEffect vai redirecionar, então não renderizamos nada
+    // para evitar que a página "pisque" na tela.
+    if (currentUser) {
+        return null;
+    }
+
+    // Se não estiver carregando E não houver usuário, renderiza a página de boas-vindas
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
             <div className="container mx-auto">
