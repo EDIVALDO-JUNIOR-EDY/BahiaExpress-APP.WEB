@@ -5,15 +5,15 @@ const { execSync } = require('child_process');
 // Função para executar comandos e capturar a saída
 const runCommand = (command) => {
   try {
-    // Usamos 'pipe' para que a saída do comando possa ser usada por nós, mas não apareça no terminal
+    // Usa 'pipe' para que a saída do comando possa ser usada por nós, mas não apareça no terminal
     return execSync(command, { encoding: 'utf8' }).trim();
   } catch (error) {
-    console.error(`\n❌ Falha ao executar o comando: ${command}`);
     // Se o erro for de 'nada para comitar', não é um erro fatal
     if (error.stdout.includes('nothing to commit')) {
-        console.warn('⚠️  Nenhuma alteração para comitar.');
+        console.warn('\n⚠️  Nenhuma alteração para comitar. O script será encerrado.');
         return null;
     }
+    console.error(`\n❌ Falha ao executar o comando: ${command}`);
     process.exit(1);
   }
 };
