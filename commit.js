@@ -1,65 +1,46 @@
 // C:/dev/commit.js
 
 const { execSync } = require('child_process');
-const readline = require('readline');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-// Função para fazer perguntas ao usuário
-const question = (query) => new Promise(resolve => rl.question(query, resolve));
-
-// Função para executar comandos
+// Função para executar comandos e capturar a saída
 const runCommand = (command) => {
   try {
-    console.log(`\n> Executando: ${command}`);
-    execSync(command, { stdio: 'inherit' });
+    // Usamos 'pipe' para que a saída do comando possa ser usada por nós, mas não apareça no terminal
+    return execSync(command, { encoding: 'utf8' }).trim();
   } catch (error) {
-    console.error(`\n❌ Falha ao executar o comando.`);
+    console.error(`\n❌ Falha ao executar o comando: ${command}`);
+    // Se o erro for de 'nada para comitar', não é um erro fatal
+    if (error.stdout.includes('nothing to commit')) {
+        console.warn('⚠️  Nenhuma alteração para comitar.');
+        return null;
+    }
     process.exit(1);
   }
 };
 
-// --- INÍCIO DO SCRIPT ASSÍNCRONO ---
-async function main() {
-  console.log('--- ASSISTENTE DE COMMIT BAHIAEXPRESS ---');
+console.log('--- INICIANDO SCRIPT DE COMMIT RÁPIDO ---');
 
-  // Pergunta 1: Tipo de Commit
-  const type = await question(`
-▶️  Qual o TIPO da alteração?
-    1. feat:  Nova funcionalidade
-    2. fix:   Correção de bug
-    3. chore: Manutenção (build, config, etc.)
-    4. docs:  Mudanças na documentação
-    Escolha um número (1-4): `);
+// 1. Prepara todos os arquivos
+console.log('\n🔄 Preparando todos os arquivos (git add .)...');
+runCommand('git add .');
 
-  const typeMap = { '1': 'feat', '2': 'fix', '3': 'chore', '4': 'docs' };
-  const commitType = typeMap[type.trim()];
-  if (!commitType) {
-    console.error('❌ Tipo inválido.');
-    return;
-  }
+// 2. Gera a mensagem de commit automática
+const currentDate = new Date().toLocaleString('pt-BR');
+const commitMessage = `chore(dev): Sincronização de progresso - ${currentDate}`;
+console.log(`\n📦 Mensagem de Commit Gerada: "${commitMessage}"`);
 
-  // Pergunta 2: Escopo do Commit
-  const scope = await question(`▶️  Qual o ESCOPO da alteração? (ex: auth, cliente, ui, build): `);
+// 3. Executa o commit
+const commitResult = runCommand(`git commit -m "${commitMessage}"`);
 
-  // Pergunta 3: Descrição Curta
-  const description = await question(`▶️  Descreva a alteração em poucas palavras (ex: adiciona login com google): `);
-
-  // Monta a mensagem final
-  const commitMessage = `${commitType}(${scope.trim()}): ${description.trim()}`;
-
-  console.log('\n-------------------------------------------');
-  console.log(`✅ Mensagem de Commit Gerada: "${commitMessage}"`);
-  console.log('-------------------------------------------');
-
-  runCommand('git add .');
-  runCommand(`git commit -m "${commitMessage}"`);
-  runCommand('git push origin develop');
-
-  console.log('\n✅ Processo de commit e push concluído com sucesso!');
+// Se o commitResult for nulo (porque não havia nada para comitar), o script para.
+if (commitResult === null) {
+    console.log('\n--- FIM DO SCRIPT ---');
+    process.exit(0);
 }
 
-main().finally(() => rl.close());
+// 4. Envia para a branch 'develop'
+console.log('\n🚀 Enviando para a branch "develop" (git push origin develop)...');
+runCommand('git push origin develop');
+
+console.log('\n✅ Processo de commit e push concluído com sucesso!');
+console.log('--- FIM DO SCRIPT ---');
