@@ -1,35 +1,35 @@
 // C:/dev/backend/firebaseConfig.js
 const admin = require('firebase-admin');
-const path = require('path');
 
-// --- CÓDIGO APRIMORADO ---
+// --- CÓDIGO DE DIAGNÓSTICO A SER ADICIONADO ---
 try {
-  // Define o caminho do arquivo conforme o ambiente
-  const serviceAccountPath = process.env.NODE_ENV === 'production'
-    ? '/etc/secrets/serviceAccountKey.json'  // Render
-    : path.join(__dirname, 'serviceAccountKey.json'); // Desenvolvimento
+    // Tenta carregar as credenciais. Em produção (Render),
+    // o caminho '/etc/secrets/' é onde os "Secret Files" são montados.
+    const serviceAccountPath = process.env.NODE_ENV === 'production' 
+        ? '/etc/secrets/serviceAccountKey.json' 
+        : './serviceAccountKey.json';
 
-  const serviceAccount = require(serviceAccountPath);
-  
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+    const serviceAccount = require(serviceAccountPath);
 
-  // Log de sucesso (CRÍTICO para diagnóstico)
-  console.log("✅ [Firebase Admin] SDK inicializado com SUCESSO.");
-  console.log("📂 Arquivo de credenciais carregado de:", serviceAccountPath);
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+
+    // Se chegar aqui, a inicialização foi bem-sucedida.
+    console.log("✅ [Firebase Admin] SDK inicializado com SUCESSO.");
 
 } catch (error) {
-  // Log detalhado do erro (ESSENCIAL para encontrar a causa-raiz)
-  console.error("❌ [Firebase Admin] FALHA CRÍTICA NA INICIALIZAÇÃO!");
-  console.error("🔍 Causa do Erro:", error.message);
-  console.error("📂 Caminho tentado:", serviceAccountPath);
-  
-  // Encerra a aplicação se o Firebase não inicializar
-  process.exit(1); 
+    // Se o arquivo não for encontrado ou for inválido, este bloco será executado.
+    console.error("❌ [Firebase Admin] FALHA CRÍTICA NA INICIALIZAÇÃO DO SDK!");
+    console.error("❌ Causa do Erro:", error.message);
+    // Encerra a aplicação se o Firebase não puder ser inicializado,
+    // pois nada na API irá funcionar.
+    process.exit(1); 
 }
-// --- FIM DO APRIMORAMENTO ---
+// --- FIM DO CÓDIGO DE DIAGNÓSTICO ---
+
 
 const db = admin.firestore();
 const auth = admin.auth();
-module.exports = { auth, db, admin };
+
+module.exports = { db, auth };
