@@ -1,2 +1,258 @@
-/* Este arquivo agora está intencionalmente vazio. */
-/* Nós estamos usando Tailwind CSS para estilização, então não precisamos de regras aqui. */
+/* C:/dev/frontend/src/App.css */
+
+/* Diretivas do Tailwind CSS (MANTIDAS) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tema Global Laranja/Azul */
+body {
+    background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Classes Utilitárias do Tema */
+.bg-gradient-brand {
+    background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%);
+}
+
+.text-brand-orange {
+    color: #FF8C00;
+}
+
+.text-brand-blue {
+    color: #1E90FF;
+}
+
+.bg-brand-orange {
+    background-color: #FF8C00;
+}
+
+.bg-brand-blue {
+    background-color: #1E90FF;
+}
+
+.border-brand-orange {
+    border-color: #FF8C00;
+}
+
+.border-brand-blue {
+    border-color: #1E90FF;
+}
+
+/* Componentes com Fundo Branco - CORRIGIDO */
+.bg-white-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bg-white-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botões Temáticos */
+.btn-primary {
+    background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #FF8C00;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: 2px solid #FF8C00;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #FF8C00;
+    color: white;
+}
+
+/* Formulários - CORRIGIDO */
+.form-input {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #FF8C00;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+}
+
+/* Cards - CORRIGIDOS */
+.brand-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.brand-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Tipografia */
+.brand-heading {
+    color: white;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.025em;
+}
+
+.brand-subheading {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.brand-text {
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Animações */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .brand-card {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+    
+    .feature-card {
+        padding: 1rem;
+        margin: 0.25rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        background: linear-gradient(180deg, #FF8C00 0%, #1E90FF 100%);
+    }
+    
+    .brand-heading {
+        font-size: 1.5rem;
+    }
+    
+    .brand-subheading {
+        font-size: 1rem;
+    }
+}
+
+/* Acessibilidade */
+.btn-primary:focus,
+.btn-secondary:focus,
+.form-input:focus {
+    outline: 3px solid #FF8C00;
+    outline-offset: 2px;
+}
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+    .text-brand-orange {
+        color: #FF6600;
+    }
+    
+    .text-brand-blue {
+        color: #0066CC;
+    }
+    
+    .bg-brand-orange {
+        background-color: #FF6600;
+    }
+    
+    .bg-brand-blue {
+        background-color: #0066CC;
+    }
+}
+
+/* Redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+    .btn-primary,
+    .btn-secondary,
+    .brand-card,
+    .feature-card {
+        transition: none;
+    }
+    
+    .animate-float {
+        animation: none;
+    }
+}
+
+/* Modo Escuro */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #CC6200 0%, #1565C0 100%);
+    }
+    
+    .bg-white-content {
+        background-color: rgba(30, 30, 30, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-input {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+}
