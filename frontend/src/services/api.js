@@ -1,5 +1,5 @@
 // C:/dev/frontend/src/services/api.js
-// VERSÃO APRIMORADA - Protocolo DEV.SENIOR
+// VERSÃO FINAL E CORRIGIDA - Protocolo DEV.SENIOR
 
 import axios from 'axios';
 
@@ -8,8 +8,11 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 console.log(`[API Service] A base da API está configurada para: ${API_URL}`);
 
+// --- INSTÂNCIA DO AXIOS CORRIGIDA ---
 const api = axios.create({
-  baseURL: API_URL,
+  // CORREÇÃO CRÍTICA APLICADA: Adiciona o prefixo /api que o backend espera.
+  // Todas as requisições agora serão feitas para, por exemplo, '...onrender.com/api/auth/login'.
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -32,7 +35,7 @@ api.interceptors.request.use(
   }
 );
 
-// --- INTERCEPTOR DE RESPOSTA (NOVA FUNCIONALIDADE CRÍTICA) ---
+// --- INTERCEPTOR DE RESPOSTA (Funcionalidade Original Mantida) ---
 // Responsabilidade: Lidar com erros de autenticação de forma global.
 api.interceptors.response.use(
   // Se a resposta for bem-sucedida (status 2xx), não faz nada e apenas a retorna.
@@ -44,24 +47,18 @@ api.interceptors.response.use(
     // Verifica se o erro possui uma resposta e um status.
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       // Erro 401 (Não Autorizado) ou 403 (Proibido) detectado.
-      // Este é o sinal de que o token é inválido, expirado ou ausente.
       console.error("[API Interceptor] Erro de autenticação detectado (401/403). Deslogando usuário.");
 
       // AÇÃO GLOBAL: Executa um "logout de emergência".
-      // 1. Limpa o token do armazenamento local.
       localStorage.removeItem('authToken');
       
-      // 2. Redireciona o usuário para a página de login.
-      // Usamos 'window.location.href' em vez de 'useNavigate' porque este
-      // arquivo é um módulo JavaScript puro, não um componente React.
-      // Isso força um recarregamento completo da aplicação, limpando qualquer estado residual.
+      // Redireciona o usuário para a página de login.
       if (window.location.pathname !== '/login') {
           window.location.href = '/login';
       }
     }
 
-    // Para todos os outros erros (ex: 500, 404), a promise é rejeitada
-    // para que o componente que fez a chamada possa tratar o erro específico.
+    // Para todos os outros erros, a promise é rejeitada.
     return Promise.reject(error);
   }
 );
