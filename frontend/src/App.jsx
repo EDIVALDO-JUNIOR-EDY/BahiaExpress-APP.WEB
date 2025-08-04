@@ -1,5 +1,5 @@
 // C:/dev/frontend/src/App.jsx
-
+// VERSÃO 3.3 - COMPLETA COM ROTA DE VERIFICAÇÃO - Protocolo DEV.SENIOR
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -18,7 +18,8 @@ const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('./pages/ResetPassword')); // <-- A PEÇA QUE FALTAVA
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
+const VerifyEmail = React.lazy(() => import('./pages/VerifyEmail')); // <-- ADICIONADO
 const Contrato = React.lazy(() => import('./pages/Contrato'));
 const PerfilMotorista = React.lazy(() => import('./pages/PerfilMotorista'));
 const ClienteDashboard = React.lazy(() => import('./pages/cliente/ClienteDashboard'));
@@ -44,24 +45,58 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/perfil/motorista/:id" element={<PerfilMotorista />} />
-
-                {/* ROTA CORRIGIDA ADICIONADA AQUI */}
                 <Route path="/resetar-senha" element={<ResetPassword />} />
-
+                
+                {/* NOVA ROTA DE VERIFICAÇÃO DE E-MAIL */}
+                <Route path="/verificar-email" element={<VerifyEmail />} />
+                
+                <Route path="/perfil/motorista/:id" element={<PerfilMotorista />} />
+                
                 {/* ================================================================= */}
                 {/* ==== Rotas Protegidas (só acessa se estiver logado) ==== */}
                 {/* ================================================================= */}
-                <Route path="/contrato/:mudancaId" element={<ProtectedRoute allowedRoles={['cliente', 'motorista', 'empresa']}><Contrato /></ProtectedRoute>} />
-                <Route path="/meu-perfil" element={<ProtectedRoute allowedRoles={['cliente', 'motorista', 'empresa']}><MeuPerfil /></ProtectedRoute>} />
-                <Route path="/cliente/dashboard" element={<ProtectedRoute allowedRoles={['cliente']}><ClienteDashboard /></ProtectedRoute>} />
-                <Route path="/cliente/solicitar-mudanca" element={<ProtectedRoute allowedRoles={['cliente']}><SolicitarMudanca /></ProtectedRoute>} />
-                <Route path="/motorista/dashboard" element={<ProtectedRoute allowedRoles={['motorista', 'empresa']}><MotoristaDashboard /></ProtectedRoute>} />
-                <Route path="/motorista/buscar-fretes" element={<ProtectedRoute allowedRoles={['motorista', 'empresa']}><BuscarFretes /></ProtectedRoute>} />
-                <Route path="/chat/:mudancaId" element={<ProtectedRoute allowedRoles={['cliente', 'motorista', 'empresa']}><Chat /></ProtectedRoute>} />
-
+                <Route path="/contrato/:mudancaId" element={
+                  <ProtectedRoute allowedRoles={['cliente', 'motorista', 'empresa']}>
+                    <Contrato />
+                  </ProtectedRoute>
+                } />
+                <Route path="/meu-perfil" element={
+                  <ProtectedRoute allowedRoles={['cliente', 'motorista', 'empresa']}>
+                    <MeuPerfil />
+                  </ProtectedRoute>
+                } />
+                <Route path="/cliente/dashboard" element={
+                  <ProtectedRoute allowedRoles={['cliente']}>
+                    <ClienteDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/cliente/solicitar-mudanca" element={
+                  <ProtectedRoute allowedRoles={['cliente']}>
+                    <SolicitarMudanca />
+                  </ProtectedRoute>
+                } />
+                <Route path="/motorista/dashboard" element={
+                  <ProtectedRoute allowedRoles={['motorista', 'empresa']}>
+                    <MotoristaDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/motorista/buscar-fretes" element={
+                  <ProtectedRoute allowedRoles={['motorista', 'empresa']}>
+                    <BuscarFretes />
+                  </ProtectedRoute>
+                } />
+                <Route path="/chat/:mudancaId" element={
+                  <ProtectedRoute allowedRoles={['cliente', 'motorista', 'empresa']}>
+                    <Chat />
+                  </ProtectedRoute>
+                } />
+                
                 {/* Rota "catch-all" para páginas não encontradas */}
-                <Route path="*" element={<div className="text-center p-10"><h1>404 - Página Não Encontrada</h1></div>} />
+                <Route path="*" element={
+                  <div className="text-center p-10">
+                    <h1>404 - Página Não Encontrada</h1>
+                  </div>
+                } />
               </Routes>
             </main>
           </Suspense>
