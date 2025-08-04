@@ -1,28 +1,35 @@
 // C:/dev/backend/firebaseConfig.js
-
-// ===================================================================
-// ARQUIVO DE CONFIGURAÇÃO DO FIREBASE ADMIN SDK PARA O BACKEND
-// Esta é a forma PADRÃO e RECOMENDADA de inicializar o Admin SDK.
-// ===================================================================
-
-// 1. IMPORTAÇÃO DAS DEPENDÊNCIAS
 const admin = require('firebase-admin');
+const path = require('path');
 
-// 2. CARREGAMENTO DIRETO DA CREDENCIAL
-// O Node.js lê e interpreta o arquivo JSON nativamente.
-// Esta abordagem é mais segura, mais simples e menos propensa a erros de formatação.
-// Pré-requisito: O arquivo 'serviceAccountKey.json' deve estar na mesma pasta.
-const serviceAccount = require('./serviceAccountKey.json');
+// --- CÓDIGO APRIMORADO ---
+try {
+  // Define o caminho do arquivo conforme o ambiente
+  const serviceAccountPath = process.env.NODE_ENV === 'production'
+    ? '/etc/secrets/serviceAccountKey.json'  // Render
+    : path.join(__dirname, 'serviceAccountKey.json'); // Desenvolvimento
 
-// 3. INICIALIZAÇÃO DA APLICAÇÃO
-// O motor é "ligado" usando a credencial importada diretamente.
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+  const serviceAccount = require(serviceAccountPath);
+  
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
 
-// 4. CRIAÇÃO E EXPORTAÇÃO DOS SERVIÇOS
-// Uma vez conectado, disponibilizamos os serviços para o resto da aplicação.
+  // Log de sucesso (CRÍTICO para diagnóstico)
+  console.log("✅ [Firebase Admin] SDK inicializado com SUCESSO.");
+  console.log("📂 Arquivo de credenciais carregado de:", serviceAccountPath);
+
+} catch (error) {
+  // Log detalhado do erro (ESSENCIAL para encontrar a causa-raiz)
+  console.error("❌ [Firebase Admin] FALHA CRÍTICA NA INICIALIZAÇÃO!");
+  console.error("🔍 Causa do Erro:", error.message);
+  console.error("📂 Caminho tentado:", serviceAccountPath);
+  
+  // Encerra a aplicação se o Firebase não inicializar
+  process.exit(1); 
+}
+// --- FIM DO APRIMORAMENTO ---
+
 const db = admin.firestore();
 const auth = admin.auth();
-
 module.exports = { auth, db, admin };
