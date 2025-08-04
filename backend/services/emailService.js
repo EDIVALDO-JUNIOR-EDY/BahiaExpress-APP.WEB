@@ -1,84 +1,82 @@
 // C:/dev/backend/services/emailService.js
-// VERSÃO FINAL CORRIGIDA E OTIMIZADA - Protocolo DEV.SENIOR
+// VERSÃO FINAL COM TEMPLATES RESTAURADOS - Protocolo DEV.SENIOR
 
 const nodemailer = require('nodemailer');
 
-// --- ARQUITETURA OTIMIZADA: Instância única e compartilhada do Transporter ---
-// Criamos o transporter uma vez e o reutilizamos. Isso é mais eficiente.
-const transporter = nodemailer.createTransport({ // CORREÇÃO 1: Nome da função corrigido de 'createTransporter'
+const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: 465,       // CORREÇÃO 2: Porta 465 é mais robusta em ambientes de nuvem
-    secure: true,    // CORREÇÃO 3: 'secure: true' é mandatório para a porta 465
+    port: 465,
+    secure: true,
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
     tls: {
-        rejectUnauthorized: false, // Mantido para compatibilidade
+        rejectUnauthorized: false,
     },
 });
 
-// Função de retry que agora reutiliza o transporter existente.
-const sendEmailWithRetry = async (mailOptions, maxRetries = 3) => {
-    let lastError;
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const info = await transporter.sendMail(mailOptions);
-            // LOG DE SUCESSO PADRONIZADO
-            console.log(`✅ [EmailService] E-mail enviado. Tentativa: ${attempt}, Message ID: ${info.messageId}`);
-            return { success: true, info };
-        } catch (error) {
-            lastError = error;
-            // LOG DE FALHA PADRONIZADO
-            console.error(`❌ [EmailService] Falha na tentativa ${attempt}: ${error.message}`);
-            if (attempt < maxRetries) {
-                const delay = Math.pow(2, attempt) * 1000;
-                console.log(`[EmailService] Aguardando ${delay}ms para a próxima tentativa...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
-        }
-    }
-    console.error(`❌ [EmailService] Falha definitiva após ${maxRetries} tentativas.`);
-    return { success: false, error: lastError };
-};
-
-// Função principal de envio de e-mail, agora mais limpa.
 const sendEmail = async (to, subject, text, html) => {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        console.error("❌ [EmailService] ERRO CRÍTICO: Credenciais SMTP não definidas.");
-        return { success: false, error: "Credenciais SMTP não configuradas." };
+    try {
+        const mailOptions = { from: process.env.EMAIL_FROM, to, subject, text, html };
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ [Email Service] E-mail enviado com sucesso para: ${to}. Message ID: ${info.messageId}`);
+        return { success: true, info };
+    } catch (error) {
+        console.error(`❌ [Email Service] FALHA CRÍTICA ao enviar e-mail para: ${to}`);
+        console.error(`❌ Causa do Erro do Nodemailer:`, error);
+        return { success: false, error };
     }
-    if (!to) {
-        console.error("❌ [EmailService] ERRO: Destinatário não especificado.");
-        return { success: false, error: "Destinatário não especificado." };
-    }
-    
-    const mailOptions = {
-        from: process.env.EMAIL_FROM || `"BahiaExpress" <${process.env.SMTP_USER}>`,
-        to, subject, text, html
-    };
-    
-    console.log(`[EmailService] Preparando para enviar e-mail para: ${to}`);
-    return await sendEmailWithRetry(mailOptions);
 };
 
-// --- Funções Helper (sem alteração na lógica, apenas usam o novo sendEmail) ---
+// --- Funções Helper com Templates Completos ---
 
 const sendWelcomeEmail = async (user) => {
     const verificationLink = `${process.env.FRONTEND_URL}/verificar-email?token=${user.emailVerificationToken}`;
-    return sendEmail(
-        user.email, 'Bem-vindo ao BahiaExpress!',
-        `Olá ${user.nome},\n\nSua conta foi criada com sucesso! Por favor, verifique seu email clicando no link abaixo:\n\n${verificationLink}`,
-        `<div>... (Seu template HTML de boas-vindas aqui) ...</div>` // Template omitido por brevidade
-    );
+    const text = `Olá ${user.nome},\n\nSua conta foi criada com sucesso! Por favor, verifique seu email clicando no link abaixo:\n\n${verificationLink}\n\nAtenciosamente,\nEquipe BahiaExpress`;
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%); padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0;">BahiaExpress</h1>
+            </div>
+            <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h2 style="color: #333; margin-top: 0;">Bem-vindo ao BahiaExpress!</h2>
+                <p style="color: #666; line-height: 1.6;">Olá <strong>${user.nome}</strong>,</p>
+                <p style="color: #666; line-height: 1.6;">Sua conta foi criada com sucesso! Para garantir a segurança da sua conta, por favor, verifique seu email clicando no botão abaixo:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${verificationLink}" style="background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Verificar Email</a>
+                </div>
+                <p style="color: #666; line-height: 1.6;">Se você não criou esta conta, por favor, ignore este email.</p>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+                    <p>© 2025 BahiaExpress. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>`;
+    return sendEmail(user.email, 'Bem-vindo ao BahiaExpress!', text, html);
 };
 
 const sendPasswordResetEmail = async (email, resetLink) => {
-    return sendEmail(
-        email, 'Recuperação de Senha - BahiaExpress',
-        `Olá,\n\nRecebemos uma solicitação para redefinir sua senha. Clique no link abaixo:\n\n${resetLink}`,
-        `<div>... (Seu template HTML de recuperação aqui) ...</div>` // Template omitido por brevidade
-    );
+    const text = `Olá,\n\nRecebemos uma solicitação para redefinir sua senha. Clique no link abaixo para criar uma nova senha:\n\n${resetLink}\n\nEste link expira em 1 hora.\n\nAtenciosamente,\nEquipe BahiaExpress`;
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%); padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0;">BahiaExpress</h1>
+            </div>
+            <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h2 style="color: #333; margin-top: 0;">Recuperação de Senha</h2>
+                <p style="color: #666; line-height: 1.6;">Olá,</p>
+                <p style="color: #666; line-height: 1.6;">Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para criar uma nova senha:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${resetLink}" style="background: linear-gradient(135deg, #FF8C00 0%, #1E90FF 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Redefinir Senha</a>
+                </div>
+                <p style="color: #666; line-height: 1.6;">Se você não solicitou esta recuperação, ignore este email.</p>
+                <p style="color: #666; line-height: 1.6;">Este link expira em 1 hora por motivos de segurança.</p>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+                    <p>© 2025 BahiaExpress. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>`;
+    return sendEmail(email, 'Recuperação de Senha - BahiaExpress', text, html);
 };
 
 module.exports = { 
