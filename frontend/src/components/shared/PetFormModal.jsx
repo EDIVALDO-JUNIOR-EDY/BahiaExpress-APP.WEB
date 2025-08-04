@@ -1,7 +1,6 @@
 // C:/dev/frontend/src/components/shared/PetFormModal.jsx
-
 import React, { useState } from 'react';
-import Modal from './Modal'; // Importa nosso modal genérico
+import Modal from './Modal';
 
 const PetFormModal = ({ isOpen, onClose, onSave }) => {
   const [petData, setPetData] = useState({
@@ -10,18 +9,17 @@ const PetFormModal = ({ isOpen, onClose, onSave }) => {
     tamanho: 'pequeno',
     possuiGaiola: false,
   });
-
+  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setPetData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
-
+  
   const handleSave = () => {
-    // Passa os dados para o componente pai (SolicitarMudanca)
     onSave(petData);
-    onClose(); // Fecha o modal
+    onClose();
   };
-
+  
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detalhes do Transporte de Pet">
       <div className="space-y-4">
@@ -46,7 +44,7 @@ const PetFormModal = ({ isOpen, onClose, onSave }) => {
           <label htmlFor="possuiGaiola" className="ml-2">Eu possuo a gaiola de transporte adequada.</label>
         </div>
         <div className="bg-yellow-100 p-3 rounded-md text-yellow-800 text-sm">
-          <strong>Atenção:</strong> A alimentação e a higiene do pet durante a viagem são de responsabilidade do cliente.
+          <strong>Atenção:</strong> A alimentação e os produtos de higiene do pet durante a viagem são de responsabilidade do cliente. Agradecemos a compreensão.
         </div>
         <div className="flex justify-end pt-4">
           <button onClick={handleSave} className="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700">
