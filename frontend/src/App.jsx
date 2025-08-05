@@ -1,5 +1,5 @@
 // C:/dev/frontend/src/App.jsx
-// VERSÃO 3.3 - COMPLETA COM ROTA DE VERIFICAÇÃO - Protocolo DEV.SENIOR
+// VERSÃO 3.11 - COM GOOGLEOAUTHPROVIDER NO TOPO - Protocolo DEV.SENIOR
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -19,7 +19,7 @@ const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
-const VerifyEmail = React.lazy(() => import('./pages/VerifyEmail')); // <-- ADICIONADO
+const VerifyEmail = React.lazy(() => import('./pages/VerifyEmail'));
 const Contrato = React.lazy(() => import('./pages/Contrato'));
 const PerfilMotorista = React.lazy(() => import('./pages/PerfilMotorista'));
 const ClienteDashboard = React.lazy(() => import('./pages/cliente/ClienteDashboard'));
@@ -47,7 +47,7 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/resetar-senha" element={<ResetPassword />} />
                 
-                {/* NOVA ROTA DE VERIFICAÇÃO DE E-MAIL */}
+                {/* ROTA DE VERIFICAÇÃO DE E-MAIL */}
                 <Route path="/verificar-email" element={<VerifyEmail />} />
                 
                 <Route path="/perfil/motorista/:id" element={<PerfilMotorista />} />
