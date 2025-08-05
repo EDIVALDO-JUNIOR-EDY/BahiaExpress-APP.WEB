@@ -1,11 +1,10 @@
 // C:/dev/backend/controllers/authController.js
-// VERSÃO 3.7 - CORRIGIDA (SEM DEPENDÊNCIA FALTANTE) - Protocolo DEV.SENIOR
+// VERSÃO 3.8 - COM VERIFICAÇÃO DE E-MAIL - Protocolo DEV.SENIOR
 const { auth, db } = require('../firebaseConfig');
 const { sendWelcomeEmail, sendPasswordResetEmail } = require('../services/emailService');
 const { createResetToken, verifyResetToken, deleteResetToken } = require('../services/passwordResetService');
 const fetch = require('node-fetch');
 const crypto = require('crypto');
-
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 
 // --- Helpers de Validação ---
@@ -204,5 +203,70 @@ exports.getMe = async (req, res) => {
     } catch (error) {
         console.error("❌ [AuthController:GetMe] FALHA:", error);
         res.status(500).json({ success: false, message: 'Erro ao obter usuário.' });
+    }
+};
+
+/**
+ * Verificação de E-mail - IMPLEMENTADA
+ */
+exports.verifyEmail = async (req, res) => {
+    console.log(`🔍 [AuthController:VerifyEmail] Iniciando verificação`);
+    const { token } = req.query;
+
+    if (!token) {
+        console.log(`❌ [AuthController:VerifyEmail] Token não fornecido`);
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Token de verificação não fornecido.' 
+        });
+    }
+
+    try {
+        console.log(`[AuthController:VerifyEmail] Buscando usuário pelo token: ${token}`);
+        
+        // Buscar usuário pelo token de verificação
+        const usersRef = db.collection('users');
+        const snapshot = await usersRef.where('emailVerificationToken', '==', token).get();
+
+        if (snapshot.empty) {
+            console.log(`❌ [AuthController:VerifyEmail] Token inválido ou expirado`);
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Token de verificação inválido ou expirado.' 
+            });
+        }
+
+        const userDoc = snapshot.docs[0];
+        const userData = userDoc.data();
+
+        // Verificar expiração do token
+        if (userData.emailVerificationExpiry < Date.now()) {
+            console.log(`❌ [AuthController:VerifyEmail] Token expirado para: ${userData.email}`);
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Token de verificação expirado. Solicite um novo e-mail.' 
+            });
+        }
+
+        // Atualizar usuário: marcar como verificado e limpar token
+        console.log(`[AuthController:VerifyEmail] Atualizando usuário: ${userData.email}`);
+        await usersRef.doc(userDoc.id).update({
+            emailVerified: true,
+            emailVerificationToken: null,
+            emailVerificationExpiry: null,
+            updatedAt: new Date()
+        });
+
+        console.log(`✅ [AuthController:VerifyEmail] E-mail verificado com sucesso: ${userData.email}`);
+        res.status(200).json({ 
+            success: true, 
+            message: 'E-mail verificado com sucesso! Agora você pode fazer login.' 
+        });
+    } catch (error) {
+        console.error("❌ [AuthController:VerifyEmail] FALHA:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro ao verificar e-mail.' 
+        });
     }
 };

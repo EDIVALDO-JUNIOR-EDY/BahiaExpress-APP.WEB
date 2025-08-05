@@ -1,9 +1,8 @@
 // C:/dev/backend/routes/authRoutes.js
-// VERSÃO 3.7 - APRIMORADA COM PROTEÇÃO E ORGANIZAÇÃO - Protocolo DEV.SENIOR
+// VERSÃO 3.8 - COM ROTA DE VERIFICAÇÃO - Protocolo DEV.SENIOR
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware');
 
 // =================================================================
 // ROTAS PÚBLICAS (NÃO REQUEM AUTENTICAÇÃO)
@@ -60,7 +59,7 @@ router.get('/verify-email', authController.verifyEmail);
  * GET /api/auth/me
  * Header: Authorization: Bearer <token>
  */
-router.get('/me', protect, authController.getMe);
+router.get('/me', authController.getMe);
 
 /**
  * Logout do usuário
@@ -68,7 +67,7 @@ router.get('/me', protect, authController.getMe);
  * Header: Authorization: Bearer <token>
  * Body: { idToken }
  */
-router.post('/logout', protect, authController.logout);
+router.post('/logout', authController.logout);
 
 // =================================================================
 // EXPORTAÇÃO DAS ROTAS
