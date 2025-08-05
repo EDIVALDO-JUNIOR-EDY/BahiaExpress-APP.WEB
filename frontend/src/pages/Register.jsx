@@ -1,4 +1,5 @@
 // C:/dev/frontend/src/pages/Register.jsx
+// VERSÃO FINAL CORRIGIDA E APRIMORADA - Protocolo DEV.SENIOR
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -19,54 +20,83 @@ const GoogleIcon = () => (
 const Register = () => {
     const navigate = useNavigate();
     const { setCurrentUser } = useAuth();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [nome, setNome] = useState('');
-    const [userType, setUserType] = useState('cliente');
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        nome: '',
+        userType: 'cliente',
+    });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Função de login bem-sucedido (para o Google)
     const handleSuccessfulLogin = (userData, token) => {
         localStorage.setItem('authToken', token);
         setCurrentUser(userData);
-        if (userData.userType === 'cliente') navigate('/cliente/dashboard');
-        else if (userData.userType === 'motorista' || userData.userType === 'empresa') navigate('/motorista/dashboard');
-        else navigate('/');
+        const redirectPath = userData.userType === 'cliente' ? '/cliente/dashboard' : '/motorista/dashboard';
+        navigate(redirectPath);
     };
 
+    // Registro com E-mail
     const handleRegister = async (e) => {
         e.preventDefault();
+        const { email, password, nome, userType } = formData;
+
         if (!email || !password || !nome) {
             setError('Todos os campos são obrigatórios.');
             return;
         }
         setLoading(true);
         setError('');
+
         try {
             const response = await api.post('/auth/register', { email, password, nome, userType });
-            alert(response.data.message);
-            navigate('/login');
+            
+            // FLUXO DE SUCESSO APRIMORADO: Redireciona com uma mensagem de estado.
+            navigate('/login', { 
+                state: { successMessage: response.data.message } 
+            });
+
         } catch (err) {
-            setError(err.response?.data?.message || 'Erro ao registrar. Tente novamente.');
+            // TRATAMENTO DE ERRO ROBUSTO (Lei nº 13)
+            console.error("❌ [RegisterPage] Falha no registro:", err);
+            let errorMessage = 'Ocorreu uma falha inesperada. Tente novamente.';
+            if (err.response) {
+                // Erro com resposta do servidor (ex: email já existe)
+                errorMessage = err.response.data.message || errorMessage;
+            } else if (err.request) {
+                // Erro de rede ou timeout (sem resposta do servidor)
+                errorMessage = 'Não foi possível se conectar ao servidor. Verifique sua conexão ou tente mais tarde.';
+            }
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
+    // Registro com Google
     const handleGoogleRegister = async () => {
         setLoading(true);
         setError('');
-        const provider = new GoogleAuthProvider();
         try {
+            const provider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, provider);
             const idToken = await result.user.getIdToken();
             const response = await api.post('/auth/google-login', { idToken });
             handleSuccessfulLogin(response.data.user, idToken);
         } catch (err) {
-            setError(err.response?.data?.message || 'Falha ao se registrar com o Google.');
+            // Tratamento de erro robusto também aplicado aqui
+            console.error("❌ [RegisterPage] Falha no registro com Google:", err);
+            const errorMessage = err.response?.data?.message || 'Falha ao se registrar com o Google.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
+    };
+    
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setFormData(prev => ({ ...prev, [id]: value }));
     };
 
     return (
@@ -84,23 +114,22 @@ const Register = () => {
                     <hr className="flex-grow border-t border-gray-300"/>
                 </div>
 
-                {/* --- SEÇÃO DO FORMULÁRIO PREENCHIDA --- */}
                 <form onSubmit={handleRegister} autoComplete="off">
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2" htmlFor="nome">Nome Completo</label>
-                        <input className="w-full p-3 border rounded-lg" type="text" id="nome" value={nome} onChange={(e) => setNome(e.target.value)} required autoComplete="name" />
+                        <input className="w-full p-3 border rounded-lg" type="text" id="nome" value={formData.nome} onChange={handleChange} required autoComplete="name" />
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2" htmlFor="email">Email</label>
-                        <input className="w-full p-3 border rounded-lg" type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+                        <input className="w-full p-3 border rounded-lg" type="email" id="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
                     </div>
                     <div className="mb-6">
                         <label className="block text-gray-700 mb-2" htmlFor="password">Senha</label>
-                        <input className="w-full p-3 border rounded-lg" type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" />
+                        <input className="w-full p-3 border rounded-lg" type="password" id="password" value={formData.password} onChange={handleChange} required autoComplete="new-password" />
                     </div>
                     <div className="mb-6">
-                        <label className="block text-gray-700 mb-2">Tipo de Usuário</label>
-                        <select value={userType} onChange={(e) => setUserType(e.target.value)} className="w-full p-3 border rounded-lg bg-white">
+                        <label className="block text-gray-700 mb-2" htmlFor="userType">Tipo de Usuário</label>
+                        <select id="userType" value={formData.userType} onChange={handleChange} className="w-full p-3 border rounded-lg bg-white">
                             <option value="cliente">Sou Cliente (Preciso de mudança)</option>
                             <option value="motorista">Sou Motorista</option>
                             <option value="empresa">Sou uma Empresa</option>
