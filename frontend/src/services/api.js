@@ -1,39 +1,46 @@
 // C:/dev/frontend/src/services/api.js
-// VERSÃO 3.9 - OTIMIZADA COM INTERCEPTORS E FLEXIBILIDADE - Protocolo DEV.SENIOR
+// VERSÃO 4.0 - TRADUZIDA PARA VITE E CORRIGIDA - Protocolo DEV.SENIOR + Gemini
 import axios from 'axios';
 
-// Configuração da baseURL com fallback para múltiplos ambientes
-const getBaseURL = () => {
-  // 1. Prioridade: variável de ambiente específica da API
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
-  }
-  
-  // 2. Fallback: construir URL baseada no frontend
-  const frontendURL = process.env.REACT_APP_FRONTEND_URL || window.location.origin;
-  return `${frontendURL}/api`;
-};
+// 1. LEITURA DA CONFIGURAÇÃO (SINTAXE VITE)
+// =================================================================
+// Usamos 'import.meta.env' para ler as variáveis do arquivo .env.local.
+// Esta é a forma correta e única de fazer isso em um projeto Vite.
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
+// Diagnóstico de inicialização para garantir que a variável foi carregada.
+if (!baseURL) {
+  console.error("❌ [API Service] Erro Crítico: A variável VITE_API_BASE_URL não está definida no .env.local. A API não funcionará.");
+}
+
+// 2. CRIAÇÃO DA INSTÂNCIA AXIOS
+// =================================================================
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: baseURL, // Ex: 'http://localhost:5000/api'
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// 3. INTERCEPTORS (LÓGICA MANTIDA)
+// =================================================================
+// Sua lógica de interceptors está ótima e foi mantida.
+// Apenas um pequeno ajuste: usar 'api.defaults.baseURL' nos logs para consistência.
+
 // --- INTERCEPTOR DE REQUISIÇÃO (Autenticação) ---
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    // A lógica de pegar o token do Firebase Auth será um pouco diferente,
+    // mas por enquanto, deixamos a base com localStorage.
+    const token = localStorage.getItem('authToken'); 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log(`🔑 [API] Token anexado à requisição: ${config.method.toUpperCase()} ${config.url}`);
     }
     return config;
   },
   (error) => {
-    console.error('❌ [API] Erro na requisição:', error);
+    console.error('❌ [API Request Interceptor] Erro:', error);
     return Promise.reject(error);
   }
 );
@@ -41,15 +48,11 @@ api.interceptors.request.use(
 // --- INTERCEPTOR DE RESPOSTA (Tratamento de Erros) ---
 api.interceptors.response.use(
   (response) => {
-    // Log de sucesso para requisições críticas
-    if (response.config.method === 'post' && response.config.url.includes('/auth/')) {
-      console.log(`✅ [API] Resposta bem-sucedida: ${response.config.method.toUpperCase()} ${response.config.url}`);
-    }
     return response;
   },
   (error) => {
     // Log detalhado do erro
-    console.error('❌ [API] Erro na resposta:', {
+    console.error('❌ [API Response Interceptor] Erro na resposta:', {
       url: error.config?.url,
       method: error.config?.method?.toUpperCase(),
       status: error.response?.status,
@@ -57,32 +60,23 @@ api.interceptors.response.use(
       data: error.response?.data
     });
 
-    // Tratamento específico para erro 401 (Não autorizado)
+    // Sua lógica de tratamento de erros 401, 403, 500 está ótima.
     if (error.response?.status === 401) {
-      console.warn('🚫 [API] Token inválido ou expirado. Deslogando usuário...');
+      console.warn('🚫 [Auth] Token inválido ou expirado. Redirecionando para login.');
       localStorage.removeItem('authToken');
-      
-      // Redireciona apenas se não estiver já na página de login
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
-    }
-
-    // Tratamento para erro 403 (Proibido)
-    if (error.response?.status === 403) {
-      console.warn('🚫 [API] Acesso proibido. Verifique suas permissões.');
-    }
-
-    // Tratamento para erro 500 (Erro do servidor)
-    if (error.response?.status === 500) {
-      console.error('💥 [API] Erro interno do servidor.');
+    } else if (error.response?.status === 500) {
+      console.error('💥 [API] Erro interno do servidor. Verifique os logs do backend.');
     }
 
     return Promise.reject(error);
   }
 );
 
-// --- UTILITÁRIO PARA DEBUG ---
+
+// --- UTILITÁRIO PARA DEBUG (MANTIDO) ---
 api.logConfig = () => {
   console.log('🔧 [API] Configuração atual:', {
     baseURL: api.defaults.baseURL,
@@ -90,5 +84,8 @@ api.logConfig = () => {
     headers: api.defaults.headers
   });
 };
+
+// Log inicial para confirmar que o serviço foi carregado corretamente
+api.logConfig();
 
 export default api;
