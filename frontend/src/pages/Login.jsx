@@ -23,9 +23,11 @@ function Login() {
 
   const handleGoogleSuccess = async (response) => {
     try {
+      console.log('Google Login Success:', response);
       await googleLogin(response.credential);
       navigate('/cliente/dashboard');
     } catch (err) {
+      console.error('Google Login Error:', err);
       setError('Falha no login com Google');
     }
   };
@@ -40,7 +42,7 @@ function Login() {
             {error}
           </div>
         )}
-
+        
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
@@ -71,7 +73,7 @@ function Login() {
             Entrar
           </button>
         </form>
-
+        
         <div className="mt-6 text-center">
           <p className="text-gray-600 mb-2">Ou entre com:</p>
           <div className="flex justify-center">
@@ -81,7 +83,7 @@ function Login() {
             />
           </div>
         </div>
-
+        
         <div className="mt-4 text-center">
           <a href="/forgot-password" className="text-blue-500 hover:underline">
             Esqueceu sua senha?
