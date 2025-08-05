@@ -13,26 +13,23 @@ const GoogleIcon = () => ( <svg className="w-5 h-5 mr-3" viewBox="0 0 48 48"> ..
 
 const Login = () => {
     const navigate = useNavigate();
-    const location = useLocation(); // Hook para acessar o estado da navegação
+    const location = useLocation();
     const { currentUser, setCurrentUser } = useAuth();
 
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // Novo estado para mensagem de sucesso
+    const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
 
-    // Efeito para ler a mensagem de sucesso vinda da página de registro
     useEffect(() => {
         if (location.state?.successMessage) {
             setSuccessMessage(location.state.successMessage);
-            // Limpa o estado da navegação para que a mensagem não reapareça
             window.history.replaceState({}, document.title);
         }
     }, [location]);
 
-    // Efeito de redirecionamento se já estiver logado
     useEffect(() => {
         if (currentUser) {
             const redirectPath = currentUser.userType === 'cliente' ? '/cliente/dashboard' : '/motorista/dashboard';
@@ -40,7 +37,16 @@ const Login = () => {
         }
     }, [currentUser, navigate]);
 
-    const validateForm = () => { /* ...código existente sem alterações... */ return true; };
+    const validateForm = () => {
+        let isValid = true;
+        const newErrors = { email: '', password: '' };
+        if (!formData.email) { newErrors.email = 'Email é obrigatório'; isValid = false; } 
+        else if (!/\S+@\S+\.\S+/.test(formData.email)) { newErrors.email = 'Email inválido'; isValid = false; }
+        if (!formData.password) { newErrors.password = 'Senha é obrigatória'; isValid = false; }
+        setErrors(newErrors);
+        return isValid;
+    };
+
     const handleSuccessfulLogin = (userData, token) => {
         localStorage.setItem('authToken', token);
         setCurrentUser(userData);
@@ -51,7 +57,7 @@ const Login = () => {
         if (!validateForm()) return;
         setLoading(true);
         setError('');
-        setSuccessMessage(''); // Limpa a mensagem de sucesso ao tentar um novo login
+        setSuccessMessage('');
         try {
             const response = await api.post('/auth/login', formData);
             handleSuccessfulLogin(response.data.user, response.data.idToken);
@@ -64,8 +70,33 @@ const Login = () => {
         }
     };
 
-    const handleGoogleLogin = async () => { /* ...código existente sem alterações... */ };
-    const handleChange = (e) => { /* ...código existente sem alterações... */ };
+    const handleGoogleLogin = async () => {
+        setGoogleLoading(true);
+        setError('');
+        setSuccessMessage('');
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const idToken = await result.user.getIdToken();
+            const response = await api.post('/auth/google-login', { idToken });
+            handleSuccessfulLogin(response.data.user, idToken);
+        } catch (err) {
+            console.error('Erro no login com Google:', err);
+            const errorMessage = err.response?.data?.message || 'Falha ao fazer login com o Google.';
+            setError(errorMessage);
+        } finally {
+            setGoogleLoading(false);
+        }
+    };
+
+    // --- CORREÇÃO CRÍTICA 1: Implementação da função handleChange ---
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
 
     if (currentUser) {
         return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 to-blue-600"><LoadingSpinner /></div>;
@@ -76,22 +107,11 @@ const Login = () => {
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Entrar na BahiaExpress</h2>
                 
-                {/* --- SEÇÃO DE MENSAGENS APRIMORADA --- */}
-                {successMessage && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <span className="block sm:inline">{successMessage}</span>
-                    </div>
-                )}
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <span className="block sm:inline">{error}</span>
-                    </div>
-                )}
+                {successMessage && (<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert"><span className="block sm:inline">{successMessage}</span></div>)}
+                {error && (<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"><span className="block sm:inline">{error}</span></div>)}
                 
-                {/* O restante do formulário e da página continua o mesmo */}
                 <form onSubmit={handleEmailLogin}>
-                    {/* ... campos de email, senha, botões ... */}
-                     <div className="mb-4">
+                    <div className="mb-4">
                         <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input id="email" type="email" name="email" value={formData.email} onChange={handleChange} className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : ''}`} placeholder="Seu email" required />
                         {errors.email && (<p className="text-red-500 text-xs italic mt-1">{errors.email}</p>)}
@@ -110,15 +130,27 @@ const Login = () => {
                         </button>
                     </div>
                 </form>
+                
                 <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-300"></div></div>
                     <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">ou continue com</span></div>
                 </div>
+                
                 <button onClick={handleGoogleLogin} disabled={googleLoading} className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                     {googleLoading ? 'Conectando...' : <><GoogleIcon /> Entrar com Google</>}
                 </button>
+                
                 <div className="mt-6 text-center">
-                    <p className="text-sm text-gray-600">Não tem uma conta?{' '}<button onClick={() => navigate('/register')} className="font-bold text-blue-500 hover:text-blue-800">Registre-se</button></p>
+                    <p className="text-sm text-gray-600">
+                        Não tem uma conta?{' '}
+                        {/* --- CORREÇÃO CRÍTICA 2: Rota de navegação corrigida --- */}
+                        <button
+                            onClick={() => navigate('/register')}
+                            className="font-bold text-blue-500 hover:text-blue-800"
+                        >
+                            Registre-se
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>
